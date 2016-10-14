@@ -1,0 +1,92 @@
+{
+  "common": {
+    "name": "rflink",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "initial commit",
+        "de": "Erste Version",
+        "ru": "Первая версия"
+      }
+    },
+    "title": "rflink adapter",
+    "desc": {
+      "en": "ioBroker rflink Adapter",
+      "de": "ioBroker rflink Adapter",
+      "ru": "ioBroker rflink драйвер "
+    },
+    "platform":   "Javascript/Node.js",
+    "mode":       "daemon",
+    "icon":       "rflink.png",
+    "enabled":    true,
+    "messagebox": true,
+    "extIcon":    "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
+    "keywords": [
+      "rflink",
+      "arduino mega"
+    ],
+    "readme":     "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",
+    "loglevel":   "info",
+    "stopBeforeUpdate": true,
+    "type":       "hardware"
+  },
+  "native": {
+    "comName":          "",
+    "connTimeout":      60000,
+    "baudRate":         115200,
+    "inclusionTimeout": 60000
+  },
+  "objects": [
+  ],
+  "instanceObjects": [
+    {
+      "_id":  "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id":  "info.connection",
+      "type": "state",
+      "common": {
+        "role":  "indicator.connected",
+        "name":  "If connected to RFLink",
+        "type":  "boolean",
+        "read":  true,
+        "write": false,
+        "def":   false
+      },
+      "native": {}
+    },
+    {
+      "_id":  "inclusionOn",
+      "type": "state",
+      "common": {
+        "role":  "state",
+        "name":  "Inclusion mode activated",
+        "desc":  "If inclusion mode on or off",
+        "type":  "boolean",
+        "read":  true,
+        "write": true,
+        "def":   false
+      },
+      "native": {}
+    },
+    {
+      "_id":  "rawData",
+      "type": "state",
+      "common": {
+        "role":  "state",
+        "name":  "raw rx data",
+        "desc":  "Last received data",
+        "type":  "string",
+        "read":  true,
+        "write": false
+      },
+      "native": {}
+    }
+  ]
+}
+

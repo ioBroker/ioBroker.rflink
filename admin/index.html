@@ -1,0 +1,481 @@
+<html>
+
+<script src="../../../ioBroker.admin/admin.js"></script>
+<link rel="stylesheet" type="text/css" href="../../lib/css/themes/jquery-ui/redmond/jquery-ui.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../lib/css/jqGrid/ui.jqgrid-4.5.4.css"/>
+<link rel="stylesheet" type="text/css" href="../../lib/css/jquery.multiselect-1.13.css"/>
+<script type="text/javascript" src="../../lib/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+<script type="text/javascript" src="../../lib/js/jquery-ui-1.10.3.full.min.js"></script>
+<script type="text/javascript" src="../../lib/js/jqGrid/jquery.jqGrid-4.5.4.min.js"></script>
+<script type="text/javascript" src="../../lib/js/jqGrid/grid.locale-all.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
+<script type="text/javascript" src="../../js/translate.js"></script>
+<script type="text/javascript" src="../../js/adapter-settings.js"></script>
+<script type="text/javascript" src="parse.js"></script>
+
+<style>
+    .oneWidth {
+        width: 120px;
+    }
+
+</style>
+<script type="text/javascript">
+    // Dictionary (systemDictionary is global variable from adapter-settings.js)
+    systemDictionary = {
+        "rflink adapter settings": {"ru": "Настройки"},
+        "Select port":          {"en": "Select port",   "de": "Select port",            "ru": "COM порт"},
+        "Bind":                 {"en": "Bind",          "de": "Bind",                   "ru": "IP сервера:"},
+        "RFLink adapter settings": {
+            "en": "RFLink adapter settings",
+            "de": "RFLink Einstellungen",
+            "ru": "Настройки RFLink драйвера"
+        },
+        "Type:":                {"en": "Type:",             "de": "Typ:",               "ru": "Тип:"},
+        "serial":               {"en": "serial",            "de": "serial",             "ru": "COM порт"},
+        "Not available":        {"en": "Not available",     "de": "Nicht möglich",      "ru": "недоступно"},
+        "Com port:":            {"en": "Com port:",         "de": "Serialport:",        "ru": "Имя порта:"},
+        "Baud rate:":           {"en": "Baud rate:",        "de": "Baudrate:",          "ru": "Скорость порта:"},
+        "Connection timeout:":  {"en": "Connection timeout:", "de": "Verbindungs-Timeout:", "ru": "Таймаут соединения:"},
+        "ms":                   {"en": "ms",                "de": "ms",                 "ru": "мс"},
+        "inclusion help":       {
+            "en": "ms (Set to 0 for manually control)",
+            "de": "ms (Setzte auf 0 um manuell zu steuern)",
+            "ru": "мс (Установите в ноль для ручного вкл./выключения"
+        },
+        "Inclusion mode timeout:": {"en": "Inclusion mode timeout:", "de": "Anlernen-Timeout:", "ru": "Время для присваивания адресов:"},
+        "Enable inclusion mode": {"en": "Enable inclusion mode", "de": "Anlernen-Modus aktivieren", "ru": "Включить режим присваивания адресов"},
+        "Disable inclusion mode": {"en": "Disable inclusion mode", "de": "Anlernen-Modus deaktivieren", "ru": "Выключить режим присваивания адресов"},
+        "Inclusion mode is active": {
+            "en": "Inclusion mode is active",
+            "de": "Anlernen-Modus ist aktiv",
+            "ru": "Режим присваивания адресов активирован"
+        },
+        "Ok":                   {"en": "Ok",                "de": "Ok",                 "ru": "Ok"}
+    };
+
+    var timeout;
+    var pairs = [];
+    var inclusion = false;
+
+    function getComPorts(actualValue) {
+        timeout = setTimeout(function () {
+            getComPorts(actualValue);
+        }, 2000);
+
+        sendTo(null, 'listUart', null, function (list) {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            if (!list || !list.length) {
+                setTimeout(function () {
+                    getComPorts(actualValue);
+                }, 1000);
+                return;
+            }
+            var text = '<option value="">' + _('Select port') + '</option>';
+            for (var j = 0; j < list.length; j++) {
+                if (list[j].comName === 'Not available') {
+                    text += '<option value="" selected>' + _('Not available') + '</option>';
+                    $('#comName').prop('disabled', true);
+                    break;
+                } else {
+                    text += '<option value="' + list[j].comName + '" ' + ((actualValue === list[j].comName) ? 'selected' : '') + '>' + list[j].comName + '</option>';
+                }
+            }
+            $('#comName').html(text);
+        });
+    }
+
+    function setValue(id, value, onChange) {
+        if ($('#' + id + '.value').attr('type') === 'checkbox') {
+            $('#' + id + '.value').prop('checked', value).change(function () {
+                onChange();
+            });
+        } else {
+            $('#' + id + '.value').val(value).change(function () {
+                onChange();
+            }).keyup(function () {
+                // Check that only numbers entered
+                if ($(this).hasClass('number')) {
+                    var val = $(this).val();
+                    if (val) {
+                        var newVal = '';
+                        for (var i = 0; i < val.length; i++) {
+                            if (val[i] >= '0' && val[i] <= '9') {
+                                newVal += val[i];
+                            }
+                        }
+                        if (val != newVal) $(this).val(newVal);
+                    }
+                }
+                onChange();
+            });
+        }
+    }
+
+    function deleteState(id) {
+        socket.emit('delObject', id, function (err) {
+            socket.emit('delState', id, function (err) {
+
+            });
+        });
+    }
+
+    function showDevice(obj) {
+        var text = '';
+        text += '<td style="text-align: right;">'  + obj.common.name  + '</td>';
+        text += '<td style="text-align: center;">' + obj.native.brand + '</td>';
+        text += '<td style="text-align: center;">' + obj.native.ID    + '</td>';
+        text += '<td style="text-align: center;" class="raw-value"   data-id="' + obj._id + '"></td>';
+        text += '<td style="text-align: center"><button class="pair" data-id="' + obj._id + '"></button></td>';
+        text += '<td style="text-align: center"><button class="del"  data-id="' + obj._id + '"></button></td>';
+
+        if (objects[obj._id]) {
+            $('tr[data-channel="' + id + '"]').html(text);
+        } else {
+            text = '<tr class="device" data-channel="' + obj._id + '">' + text + '</tr>';
+            $('#devices').append(text);
+        }
+
+        objects[obj._id] = obj;
+
+        $('.del[data-id="' + obj._id + '"]').button({
+            text: false,
+            icons: {
+                primary: 'ui-icon-trash'
+            }
+        }).css({width: 22, height: 22}).unbind('click').click(function () {
+            var id = $(this).data('id');
+            if (confirm(_('Are you sure?'))) {
+                socket.emit('delObject', id, function () {
+                    socket.emit('getObjectView', 'system', 'state', {startkey: id + '.', endkey: id + '.\u9999', include_docs: true}, function (err, res) {
+                        for (var i = 0; i < res.rows.length; i++) {
+                            deleteState(res.rows[i].id);
+                        }
+                        $('tr[data-channel="' + id + '"]').remove();
+                        delete objects[id];
+                    });
+                });
+            }
+        });
+
+        $('.pair[data-id="' + obj._id + '"]').button({
+            text: false,
+            icons: {
+                primary: 'ui-icon-transfer-e-w'
+            }
+        }).css({width: 22, height: 22}).unbind('click').click(function () {
+            var id = $(this).data('id');
+            var pos;
+            if ((pos = pairs.indexOf(id)) === -1) {
+                pairs.push(id);
+                $(this).addClass('ui-state-active ui-state-hover');
+            } else {
+                $(this).removeClass('ui-state-active ui-state-hover');
+                pairs.splice(pos, 1);
+            }
+        });
+    }
+
+    function addNewDevice(frame, attrs) {
+        // find unique ID
+        var num = 1;
+        var found;
+        var newId;
+        do {
+            found = false;
+            newId = 'rflink.' + instance + '.' + frame.brand + '_' + num;
+            for (var id in objects) {
+                if (id === newId) {
+                    found = true;
+                    num++;
+                    break;
+                }
+            }
+        } while(found);
+
+        // add new device
+        var channelObj = {
+            _id: newId,
+            common: {
+                name: frame.brand + ' ' + num,
+                role: ''
+            },
+            native: {
+                ID:    frame.ID,
+                brand: frame.brand,
+                attrs: attrs
+            },
+            type: 'channel'
+        };
+
+        var objs = analyseFrame(frame, newId);
+
+        // analyse if some switches are there
+        for (var id in objs) {
+            if (objs[id].native.switch !== undefined) {
+                channelObj.native.switches = [objs[id].native.switch];
+                break;
+            }
+        }
+
+        objs.push(channelObj);
+
+        function insertObjs(_objs) {
+            if (!_objs || !_objs.length) {
+                console.log('done ' + deviceId);
+                callback && callback();
+            } else {
+                var obj = _objs.pop();
+                console.log('Add ' + objs._id);
+                socket.emit('getObject', obj._id, function (err, oldObj) {
+                    if (!oldObj) {
+                        setTimeout(function () {
+                            socket.emit('setObject', obj._id, obj, function () {
+                                insertObjs(_objs);
+                            });
+                        }, 50);
+                    } else {
+                        // merge switches
+                        if (oldObj.native.switches) {
+                            for (var s = 0; s < obj.native.switches.length; s++) {
+                                if (oldObj.native.switches.indexOf(obj.native.switches[s]) === -1) oldObj.native.switches.push(obj.native.switches[s]);
+                            }
+                            obj.native.switches = oldObj.native.switches;
+                        }
+
+                        oldObj.native = obj.native;
+                        setTimeout(function () {
+                            socket.emit('setObject', oldObj._id, oldObj, function () {
+                                insertObjs(_objs);
+                            });
+                        }, 50)
+                    }
+                });
+            }
+        }
+
+        insertObjs(objs);
+    }
+
+    function load(settings, onChange) {
+        if (!settings) return;
+        for (var key in settings) {
+            setValue(key, settings[key], onChange);
+        }
+
+        $('#enableInclusion').button().hide();
+
+        setTimeout(function () {
+            socket.emit('getState', adapter + '.' + instance + '.inclusionOn', function (err, state) {
+                if (err) window.alert(err);
+                inclusion = state && state.val;
+
+                $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode')).show().click(function () {
+                    socket.emit('getState', adapter + '.' + instance + '.inclusionOn', function (err, state) {
+                        state     = state || {val: false};
+                        state.val = !state.val;
+                        inclusion = state.val;
+
+                        $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
+
+                        socket.emit('setState', adapter + '.' + instance + '.inclusionOn', {
+                            val: state.val,
+                            ack: false
+                        }, function (err) {
+                            if (!err) {
+                                showMessage(_('Inclusion mode is active'));
+                            } else {
+                                showError(err);
+                            }
+                        });
+                    });
+                });
+            });
+        }, 1000);
+
+        getIsAdapterAlive(function (isAlive) {
+            if (isAlive || common.enabled) {
+                getComPorts(settings.comName);
+            } else {
+                $('#getUnit').prop('disabled', true);
+            }
+        });
+
+        socket.emit('getObjectView', 'system', 'channel', {startkey: 'rflink.' + instance + '.', endkey: 'rflink.' + instance + '.\u9999', include_docs: true}, function (err, res) {
+            res.rows.sort(function (a, b) {
+                if (a.value.native.address > b.value.native.address) return 1;
+                if (a.value.native.address < b.value.native.address) return -1;
+                return 0;
+            });
+
+            for (var i = 0; i < res.rows.length; i++) {
+                showDevice(res.rows[i].value);
+            }
+        });
+
+        socket.on('objectChange', function (id, obj) {
+            if (!obj) {
+                $('tr[data-channel="' + id + '"]').remove();
+            } else {
+                showDevice(obj);
+            }
+        });
+
+        socket.on('stateChange', function (id, state) {
+            if (id === 'rflink.' + instance + '.inclusionOn') {
+                inclusion = state && state.val;
+
+                $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
+            } else {
+                // analyse rawData
+                if (!state || !state.val || !state.ack || typeof state.val !== 'string') return;
+
+                // received something like:
+                // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
+                var frame = parseString(state.val);
+                var _id;
+                var pos;
+
+                for (_id in objects) {
+                    if (!objects.hasOwnProperty(_id)) continue;
+
+                    if (objects[_id].native.brand === frame.brand && objects[_id].native.ID === frame.ID &&
+                            (frame.SWITCH === undefined || (objects[_id].native.switches && objects[_id].native.switches.indexOf(frame.SWITCH) !== -1))
+                    ) {
+                        delete frame.ID;
+                        delete frame.brand;
+
+                        $('.raw-value[data-id="' + _id + '"]').html(JSON.stringify(frame));
+                        // disable pairing, because channel yet exists
+                        if ((pos = pairs.indexOf(id)) !== -1) {
+                            $('.pair[data-id="' + id + '"]').removeClass('ui-state-active ui-state-hover');
+                            pairs.splice(pos, 1);
+                        }
+                        return;
+                    }
+                }
+                var attrs = [];
+                for (var attr in frame) {
+                    if (attr === 'brand' || attr === 'ID') return;
+                    attrs.push(attr);
+                }
+                attrs.sort();
+                attrs = attrs.join(';');
+
+                // find in pairs suitable device
+                for (_id in objects) {
+                    if (!objects.hasOwnProperty(_id)) continue;
+
+                    // If device suits to it
+                    if (objects[_id].native.brand === frame.brand && objects[_id].native.attrs === attrs &&
+                            (frame.SWITCH === undefined || (objects[_id].native.switches && objects[_id].native.switches.indexOf(frame.SWITCH) !== -1))
+                    ) {
+                        // if pairing active
+                        if ((pos = pairs.indexOf(id)) !== -1) {
+                            objects[id].native.ID = frame.ID;
+                            delete frame.ID;
+                            delete frame.brand;
+
+                            $('.raw-value[data-id="' + _id + '"]').html(JSON.stringify(frame));
+
+                            socket.emit('setObject', id, objects, function (err, obj) {
+                                if (!err) {
+                                    showDevice(objects[id]);
+                                }
+                            });
+                            $('.pair[data-id="' + id + '"]').removeClass('ui-state-active ui-state-hover');
+                            pairs.splice(pos, 1);
+                            return;
+                        }
+                    }
+                }
+
+                if (inclusion) {
+                    addNewDevice(frame, attrs);
+                }
+            }
+        });
+
+        socket.emit('subscribeObjects', 'rflink.' + instance + '.*');
+        socket.emit('subscribeStates',  'rflink.' + instance + '.rawData');
+        socket.emit('subscribeStates',  'rflink.' + instance + '.inclusionOn');
+        onChange(false);
+    }
+
+    function save(callback) {
+        var obj = {};
+        $('.value').each(function () {
+            var $this = $(this);
+            if ($this.attr('type') === 'checkbox') {
+                obj[$this.attr('id')] = $this.prop('checked');
+            } else {
+                obj[$this.attr('id')] = $this.val();
+            }
+        });
+        callback(obj);
+    }
+</script>
+<style type="text/css">
+    .tab1 {
+        border:    1px solid blue;
+        width:     95%;
+        overflow:  auto;
+    }
+    .help {
+        font-size: small;
+    }
+</style>
+    <div id="adapter-container">
+        <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
+        <div id="tabs">
+            <ul>
+                <li><a href="#tabs-1" class="translate">Poll</a></li>
+                <li><a href="#tabs-2" class="translate">GPIOs</a></li>
+            </ul>
+            <div id="tabs-1">
+                <table>
+                    <tr class="serial"><td class="translate">Com port:</td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
+                    <tr class="serial"><td class="translate">Baud rate:</td><td><select class="value oneWidth" id="baudRate">
+                        <option value="110">110</option>
+                        <option value="150">150</option>
+                        <option value="300">300</option>
+                        <option value="600">600</option>
+                        <option value="1200">1200</option>
+                        <option value="2400">2400</option>
+                        <option value="4800">4800</option>
+                        <option value="9600">9600</option>
+                        <option value="19200">19200</option>
+                        <option value="38400">38400</option>
+                        <option value="56000">56000</option>
+                        <option value="57600">57600</option>
+                        <option value="115200">115200</option>
+                    </select></td><td></td></tr>
+                    <tr class="udp serial"><td class="translate">Connection timeout:</td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
+                    <tr class="tcp udp serial"><td class="translate">Inclusion mode timeout:</td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
+                    <tr class="tcp udp serial"><td></td><td><button id="enableInclusion" class="translateB">Enable inclusion mode</button></td><td><div id="inclusionState"></div></td></tr>
+                </table>
+            </div>
+            <div id="tabs-2">
+                <table>
+                    <thead>
+                    <tr class="ui-widget-header">
+                        <td style="width: 100px; text-align: center" class="translate">Brand</td>
+                        <td style="width: 70px;  text-align: center" class="translate">Name</td>
+                        <td style="width: 70px;  text-align: center" class="translate">ID</td>
+                        <td style="width: 100px; text-align: center" class="translate">Values</td>
+                        <td style="width: 30px;  text-align: center" class="translate">Pair</td>
+                        <td style="width: 30px;  text-align: center" class="translate"></td>
+                    </tr>
+                    </thead>
+                    <tbody id="devices">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</html>

@@ -1,0 +1,47 @@
+{
+  "name": "iobroker.rflnk",
+  "version": "0.1.0",
+  "description": "ioBroker rflnk Adapter",
+  "author": {
+    "name": "bluefox",
+    "email": "dogafox@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Bluefox",
+      "email": "dogafox@gmail.com"
+    }
+  ],
+  "homepage": "https://github.com/ioBroker/ioBroker.rflnk",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "rflnk",
+    "Smart Home",
+    "home automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ioBroker/ioBroker.rflnk"
+  },
+  "dependencies": {
+    "serialport": "^2.0.6"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-replace": "^0.11.0 ",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-jscs": "^2.7.0",
+    "grunt-http": "^2.0.1",
+    "mocha": "^2.4.5",
+    "chai": "^3.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/ioBroker/ioBroker.rflnk/issues"
+  },
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha"
+  },
+  "readmeFilename": "README.md"
+}
+
