@@ -263,6 +263,9 @@ function parseString(rawData) {
     if (!parts[parts.length - 1]) parts.splice(parts.length - 1, 1);
 
     if (parts.length < 3) return null;
+
+    if (parts[0] === 'Debug') return null;
+
     var frame = {
         brand: parts[0],
         dataRaw: rawData
