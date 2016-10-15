@@ -166,6 +166,7 @@
     }
 
     function showDevice(obj) {
+        if (obj._id === 'rflink.' + instance + '.info') return;
         var text = '';
         text += '<td style="text-align: right; white-space: nowrap;"' +
                 ((obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') ? 'class="error" title="' + _('No address') + '"' : '') + '>'  + obj.native.brand  + '</td>';
