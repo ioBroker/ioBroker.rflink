@@ -1,7 +1,7 @@
 {
-  "name": "iobroker.rflnk",
+  "name": "iobroker.rflink",
   "version": "0.1.0",
-  "description": "ioBroker rflnk Adapter",
+  "description": "ioBroker rflink Adapter",
   "author": {
     "name": "bluefox",
     "email": "dogafox@gmail.com"
@@ -12,17 +12,17 @@
       "email": "dogafox@gmail.com"
     }
   ],
-  "homepage": "https://github.com/ioBroker/ioBroker.rflnk",
+  "homepage": "https://github.com/ioBroker/ioBroker.rflink",
   "license": "MIT",
   "keywords": [
     "ioBroker",
-    "rflnk",
+    "rflink",
     "Smart Home",
     "home automation"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ioBroker/ioBroker.rflnk"
+    "url": "https://github.com/ioBroker/ioBroker.rflink"
   },
   "dependencies": {
     "serialport": "^2.0.6"
@@ -37,7 +37,7 @@
     "chai": "^3.5.0"
   },
   "bugs": {
-    "url": "https://github.com/ioBroker/ioBroker.rflnk/issues"
+    "url": "https://github.com/ioBroker/ioBroker.rflink/issues"
   },
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha"
