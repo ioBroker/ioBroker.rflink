@@ -11,9 +11,9 @@
     },
     "title": "rflink adapter",
     "desc": {
-      "en": "ioBroker rflink Adapter",
-      "de": "ioBroker rflink Adapter",
-      "ru": "ioBroker rflink драйвер "
+      "en": "ioBroker RFLink Adapter",
+      "de": "ioBroker RFLink Adapter",
+      "ru": "ioBroker RFLink драйвер "
     },
     "platform":   "Javascript/Node.js",
     "mode":       "daemon",
@@ -22,7 +22,7 @@
     "messagebox": true,
     "extIcon":    "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
     "keywords": [
-      "rflink",
+      "RFLink",
       "arduino mega"
     ],
     "readme":     "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",

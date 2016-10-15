@@ -1,7 +1,7 @@
 {
   "name": "iobroker.rflink",
   "version": "0.1.0",
-  "description": "ioBroker rflink Adapter",
+  "description": "ioBroker RFLink Adapter",
   "author": {
     "name": "bluefox",
     "email": "dogafox@gmail.com"
