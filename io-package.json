@@ -9,7 +9,7 @@
         "ru": "Первая версия"
       }
     },
-    "title": "rflink adapter",
+    "title": "RFLink adapter",
     "desc": {
       "en": "ioBroker RFLink Adapter",
       "de": "ioBroker RFLink Adapter",
@@ -33,7 +33,7 @@
   "native": {
     "comName":          "",
     "connTimeout":      60000,
-    "baudRate":         115200,
+    "baudRate":         57600,
     "inclusionTimeout": 60000,
     "autoRepair":       180
   },

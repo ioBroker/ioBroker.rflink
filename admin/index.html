@@ -79,7 +79,11 @@
         "Ok":                   {"en": "Ok",                "de": "Ok",                 "ru": "Ok"},
         "Options":              {"en": "Options",           "de": "Einstellungen",      "ru": "Настройки"},
         "Devices":              {"en": "Devices",           "de": "Geräte",             "ru": "Устройства"},
-        "Timeout for auto re-pair (minutes):": {"en": "Timeout for auto re-pair (minutes):", "de": "Timeout for auto re-pair (minutes):", "ru": "Timeout for auto re-pair (minutes):"},
+        "Timeout for auto re-pair:": {
+            "en": "Timeout for auto re-pair:",
+            "de": "Timeout füt Auto-Wieder-Verbindung:",
+            "ru": "Таймаут для авто связывания:"
+        },
         "Brand":                {"en": "Brand",             "de": "Firma",              "ru": "Фирма"},
         "Number":               {"en": "Number",            "de": "Nummer",             "ru": "Номер"},
         "Auto re-pair":         {"en": "Auto re-pair",      "de": "Auto re-pair",       "ru": "Авто re-pair"},
@@ -294,7 +298,7 @@
             if (!obj) {
                 $('tr[data-channel="' + id + '"]').remove();
             } else {
-                if (obj.type === 'channel') showDevice(obj);
+                if (obj.type === 'channel' && id !== 'rflink.' + instance + '.info' && obj.native && obj.native.brand) showDevice(obj);
             }
         });
 
@@ -385,7 +389,7 @@
                     </select></td><td></td></tr>
                     <tr><td><label for="connTimeout" class="translate">Connection timeout:</label></td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
                     <tr><td><label for="inclusionTimeout" class="translate">Inclusion mode timeout:</label></td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
-                    <tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair (minutes):</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">inclusion help</span></td></tr>
+                    <tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair:</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">re-pair help</span></td></tr>
                     <tr><td></td><td><button id="enableInclusion" class="translateB">Enable inclusion mode</button></td><td><div id="inclusionState"></div></td></tr>
                 </table>
             </div>
