@@ -253,13 +253,11 @@ function encodeValue(attr, value, type) {
 
 function parseString(rawData) {
     // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
-    if (rawData.indexOf('DEBUG') !== -1) {
-        return null;
-    }
+    if (rawData.indexOf('DEBUG') !== -1) return null;
+
     var parts = rawData.split(';');
-    if (parts[0] === '20') {
-        parts.splice(0, 2);
-    }
+    if (parts[0] === '20') parts.splice(0, 2);
+
     if (!parts[parts.length - 1]) parts.splice(parts.length - 1, 1);
 
     if (parts.length < 3) return null;
@@ -272,6 +270,7 @@ function parseString(rawData) {
     };
 
     for (var i = 1; i < parts.length; i++) {
+        if (!parts[i].trim()) continue;
         var pp = parts[i].split('=');
         frame[pp[0]] = decodeValue(pp[0], pp[pp.length - 1]);
         if (pp[0] === 'CMD') {
