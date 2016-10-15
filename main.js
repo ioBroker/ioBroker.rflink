@@ -67,6 +67,7 @@ adapter.on('stateChange', function (id, state) {
 
     if (id === adapter.namespace + '.inclusionOn') {
         setInclusionState(state.val);
+        adapter.setForeignState(id, state.val, true);
     } else
     // output to rflink
     if (states[id] && states[id].common.write) {
@@ -85,7 +86,7 @@ adapter.on('objectChange', function (id, obj) {
         if (obj.type === 'state') {
             states[id] = obj
         } else if (obj.type === 'channel') {
-            if (obj.native && typeof obj.native.autoRepair === 'string') obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
+            if (obj.native.autoRepair !== undefined) obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
 
             if (obj.native.autoRepair) {
                 lastReceived[id] = new Date().getTime();
@@ -246,10 +247,9 @@ function addNewDevice(frame, attrs, callback) {
                             if (frame[obj.native.attr] !== undefined) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
 
-                                if (typeof frame[obj.native.attr] === 'number') {
-
+                                if (typeof frame[obj.native.attr] === 'number' && obj.native.factor) {
+                                    frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
                                 }
-
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });
@@ -276,6 +276,11 @@ function addNewDevice(frame, attrs, callback) {
                         adapter.setForeignObject(oldObj._id, oldObj, function () {
                             if (frame[obj.native.attr] !== undefined) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
+
+                                if (typeof frame[obj.native.attr] === 'number' && obj.native.factor) {
+                                    frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
+                                }
+
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });
@@ -337,6 +342,7 @@ function processFrame(frame, isAdd, callback) {
 
                 if (states[stateId]) {
                     adapter.log.debug('Set state "' + stateId + '": ' + frame.CMD);
+
                     (function (__id) {
                         adapter.setForeignState(stateId, frame.CMD, true, function (err) {
                             if (states[__id + '.RGBW_' + frame.SWITCH] && frame.RGBW !== undefined) {
@@ -368,6 +374,11 @@ function processFrame(frame, isAdd, callback) {
                     if (states[id + '.' + _attr]) {
                         count++;
                         adapter.log.debug('Set state "' + id + '.' + _attr + '": ' + frame[_attr]);
+
+                        if (typeof frame[_attr] === 'number' && states[id + '.' + _attr].factor) {
+                            frame[_attr] = states[id + '.' + _attr].factor * frame[_attr] + states[id + '.' + _attr].offset;
+                        }
+
                         adapter.setForeignState(id + '.' + _attr, frame[_attr], true, function () {
                             if (!--count && callback) callback();
                         });

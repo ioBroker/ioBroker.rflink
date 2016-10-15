@@ -172,16 +172,16 @@
                 ((obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') ? 'class="error" title="' + _('No address') + '"' : '') + '>'  + obj.native.brand  + '</td>';
         text += '<td style="text-align: center;">' + obj.native.index + '</td>';
         text += '<td style="text-align: center;"><input class="auto-repair" type="input" data-id="' + obj._id + '" value="' + (obj.native.autoRepair || 0) + '" /></td>';
-        if (obj.native.offset !== undefined) {
-            text += '<td style="text-align: center;"><input class="offset" type="input" data-id="' + obj._id + '" value="' + (obj.native.offset || 0) + '" /></td>';
-        } else {
-            text += '<td></td>';
-        }
-        if (obj.native.factor !== undefined) {
-            text += '<td style="text-align: center;"><input class="factor" type="input" data-id="' + obj._id + '" value="' + (obj.native.factor || 0) + '" /></td>';
-        } else {
-            text += '<td></td>';
-        }
+//        if (obj.native.offset !== undefined) {
+//            text += '<td style="text-align: center;"><input class="offset" type="input" data-id="' + obj._id + '" value="' + (obj.native.offset || 0) + '" /></td>';
+//        } else {
+//            text += '<td></td>';
+//        }
+//        if (obj.native.factor !== undefined) {
+//            text += '<td style="text-align: center;"><input class="factor" type="input" data-id="' + obj._id + '" value="' + (obj.native.factor || 1) + '" /></td>';
+//        } else {
+//            text += '<td></td>';
+//        }
         //text += '<td style="text-align: right;">'  + obj.native.ID    + '</td>';
         text += '<td style="text-align: left;"   class="raw-value"   data-id="' + obj._id + '"></td>';
         text += '<td style="text-align: center"><button class="pair" data-id="' + obj._id + '"></button></td>';
@@ -435,8 +435,8 @@
                         <td style="width: 100px; text-align: center; white-space: nowrap; white-space: nowrap" class="translate">Brand</td>
                         <td style="width: 70px;  text-align: center; white-space: nowrap" class="translate">Number</td>
                         <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair</td>
-                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Offset</td>
-                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Factor</td>
+                        <!--td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Offset</td>
+                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Factor</td-->
                         <!--td style="width: 50px;  text-align: center" class="translate">ID</td-->
                         <td style="width: 200px; text-align: left;   white-space: nowrap" class="translate">Values</td>
                         <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate">Pair</td>
