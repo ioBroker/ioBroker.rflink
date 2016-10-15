@@ -85,13 +85,12 @@ adapter.on('objectChange', function (id, obj) {
         if (obj.type === 'state') {
             states[id] = obj
         } else if (obj.type === 'channel') {
+            if (obj.native && typeof obj.native.autoRepair === 'string') obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
 
-            if (adapter.config.autoRepair) {
-                if (obj.native.autoRepair) {
-                    lastReceived[id] = new Date().getTime();
-                } else if (lastReceived[id]) {
-                    delete lastReceived[id];
-                }
+            if (obj.native.autoRepair) {
+                lastReceived[id] = new Date().getTime();
+            } else if (lastReceived[id]) {
+                delete lastReceived[id];
             }
 
             channels[id] = obj;
@@ -200,7 +199,7 @@ function addNewDevice(frame, attrs, callback) {
                 brand:      frame.brandRaw,
                 attrs:      attrs,
                 index:      index,
-                autoRepair: true
+                autoRepair: 5
             },
             type: 'channel'
         };
@@ -210,6 +209,7 @@ function addNewDevice(frame, attrs, callback) {
 
     // analyse if some switches are there
     for (var id in objs) {
+        if (!objs.hasOwnProperty(id)) continue;
         if (objs[id].native.switch !== undefined) {
             channelObj.native.switches = channelObj.native.switches || [];
             if (channelObj.native.switches.indexOf(objs[id].native.switch) === -1) {
@@ -245,6 +245,11 @@ function addNewDevice(frame, attrs, callback) {
                         adapter.setForeignObject(obj._id, obj, function () {
                             if (frame[obj.native.attr] !== undefined) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
+
+                                if (typeof frame[obj.native.attr] === 'number') {
+                                    
+                                }
+
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });
@@ -467,9 +472,9 @@ function checkAutoRepair() {
         if (!lastReceived[id]) return;
         if (!channels.hasOwnProperty(id)) continue;
 
-        if (now - lastReceived[id] > adapter.config.autoRepair * 60000) {
+        if (now - lastReceived[id] > channels[id].native.autoRepair * 60000) {
             channels[id].native.autoPair = true;
-            adapter.log.debug('Enable auto re-pair for "' + id + '" because no data from minimum ' + adapter.config.autoRepair + ' minutes');
+            adapter.log.debug('Enable auto re-pair for "' + id + '" because no data from minimum ' + channels[id].native.autoRepair + ' minutes');
             adapter.setForeignObject(id, channels[id]);
         }
     }
@@ -477,7 +482,6 @@ function checkAutoRepair() {
 
 function main() {
     adapter.config.inclusionTimeout = parseInt(adapter.config.inclusionTimeout, 10) || 0;
-    adapter.config.autoRepair       = parseInt(adapter.config.autoRepair, 10) || 0;
 
     adapter.getState('inclusionOn', function (err, state) {
         setInclusionState(state ? state.val : false);
@@ -494,16 +498,14 @@ function main() {
             adapter.subscribeStates('*');
             adapter.subscribeObjects('*');
 
-            if (adapter.config.autoRepair) {
-                // Mark all sensors as if they received something
-                for (var id in channels) {
-                    if (!channels.hasOwnProperty(id)) continue;
-                    if (channels[id].native.autoRepair) {
-                        lastReceived[id] = new Date().getTime();
-                    }
-                }
-                repairInterval = setInterval(checkAutoRepair, 60000);
+            // Mark all sensors as if they received something
+            for (var id in channels) {
+                if (!channels.hasOwnProperty(id)) continue;
+                channels[id].native.autoRepair = parseInt(channels[id].native.autoRepair, 10) || 0;
+
+                if (channels[id].native.autoRepair) lastReceived[id] = new Date().getTime();
             }
+            repairInterval = setInterval(checkAutoRepair, 60000);
 
             comm = new Serial(adapter.config, adapter.log, function (err) {
                 // done

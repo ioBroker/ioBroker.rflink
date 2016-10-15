@@ -171,7 +171,17 @@
         text += '<td style="text-align: right; white-space: nowrap;"' +
                 ((obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') ? 'class="error" title="' + _('No address') + '"' : '') + '>'  + obj.native.brand  + '</td>';
         text += '<td style="text-align: center;">' + obj.native.index + '</td>';
-        text += '<td style="text-align: center;"><input class="auto-repair" type="checkbox" data-id="' + obj._id + '" ' + (obj.native.autoRepair ? 'checked' : '') + ' /></td>';
+        text += '<td style="text-align: center;"><input class="auto-repair" type="input" data-id="' + obj._id + '" value="' + (obj.native.autoRepair || 0) + '" /></td>';
+        if (obj.native.offset !== undefined) {
+            text += '<td style="text-align: center;"><input class="offset" type="input" data-id="' + obj._id + '" value="' + (obj.native.offset || 0) + '" /></td>';
+        } else {
+            text += '<td></td>';
+        }
+        if (obj.native.factor !== undefined) {
+            text += '<td style="text-align: center;"><input class="factor" type="input" data-id="' + obj._id + '" value="' + (obj.native.factor || 0) + '" /></td>';
+        } else {
+            text += '<td></td>';
+        }
         //text += '<td style="text-align: right;">'  + obj.native.ID    + '</td>';
         text += '<td style="text-align: left;"   class="raw-value"   data-id="' + obj._id + '"></td>';
         text += '<td style="text-align: center"><button class="pair" data-id="' + obj._id + '"></button></td>';
@@ -211,6 +221,25 @@
             var id = $this.data('id');
             $this.prop('disabled', true);
             channels[id].native.autoRepair != channels[id].native.autoRepair;
+            socket.emit('setObject', id, channels[id], function (err) {
+                // button will be re-drawn on change
+            });
+        });
+
+        $('.offset[data-id="' + obj._id + '"]').change(function () {
+            var $this = $(this);
+            var id = $this.data('id');
+            $this.prop('disabled', true);
+            channels[id].native.offset = parseFloat($this.val());
+            socket.emit('setObject', id, channels[id], function (err) {
+                // button will be re-drawn on change
+            });
+        });
+        $('.factor[data-id="' + obj._id + '"]').change(function () {
+            var $this = $(this);
+            var id = $this.data('id');
+            $this.prop('disabled', true);
+            channels[id].native.factor = parseFloat($this.val());
             socket.emit('setObject', id, channels[id], function (err) {
                 // button will be re-drawn on change
             });
@@ -395,7 +424,7 @@
                     </select></td><td></td></tr>
                     <tr><td><label for="connTimeout" class="translate">Connection timeout:</label></td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
                     <tr><td><label for="inclusionTimeout" class="translate">Inclusion mode timeout:</label></td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
-                    <tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair:</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">re-pair help</span></td></tr>
+                    <!--tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair:</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">re-pair help</span></td></tr-->
                     <tr><td></td><td><button id="enableInclusion" class="translateB">Enable inclusion mode</button></td><td><div id="inclusionState"></div></td></tr>
                 </table>
             </div>
@@ -406,8 +435,10 @@
                         <td style="width: 100px; text-align: center; white-space: nowrap; white-space: nowrap" class="translate">Brand</td>
                         <td style="width: 70px;  text-align: center; white-space: nowrap" class="translate">Number</td>
                         <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair</td>
+                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Offset</td>
+                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Factor</td>
                         <!--td style="width: 50px;  text-align: center" class="translate">ID</td-->
-                        <td style="width: 200px; text-align: left; white-space: nowrap"   class="translate">Values</td>
+                        <td style="width: 200px; text-align: left;   white-space: nowrap" class="translate">Values</td>
                         <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate">Pair</td>
                         <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate"></td>
                     </tr>

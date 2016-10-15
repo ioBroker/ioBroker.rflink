@@ -32,6 +32,7 @@ var decoders = {
         return result / 10;
     },
     HUM: function(value) {
+        if (value === 'cc') return null;
         return parseInt(value, 10);
     },
     BARO: function(value) {
@@ -441,10 +442,11 @@ function analyseFrame(frame, newId, index) {
                 native: JSON.parse(JSON.stringify(native)),
                 type:   'state'
             };
-            obj.native.attr = attr;
-            obj.common.read  = true;
-            obj.common.write = false;
-            obj.common.name  = frame.brandRaw + ' ' + index + ' ' + (obj.common.name || attr);
+            obj.native.attr   = attr;
+            obj.native.offset = 0;
+            obj.common.read   = true;
+            obj.common.write  = false;
+            obj.common.name   = frame.brandRaw + ' ' + index + ' ' + (obj.common.name || attr);
             objs.push(obj);
         } else {
             // Common state
@@ -458,9 +460,11 @@ function analyseFrame(frame, newId, index) {
                 native: JSON.parse(JSON.stringify(native)),
                 type:   'state'
             };
-            obj.native.attr = attr;
-            obj.common.name = frame.brandRaw + ' ' + index + ' ' + attr;
-            obj.common.role = obj.common.type === 'boolean' ? 'indicator' : 'state';
+            obj.native.attr   = attr;
+            obj.native.offset = 0;
+            obj.native.factor = 1;
+            obj.common.name   = frame.brandRaw + ' ' + index + ' ' + attr;
+            obj.common.role   = obj.common.type === 'boolean' ? 'indicator' : 'state';
             objs.push(obj);
         }
     }

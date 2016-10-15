@@ -34,8 +34,7 @@
     "comName":          "",
     "connTimeout":      600000,
     "baudRate":         57600,
-    "inclusionTimeout": 60000,
-    "autoRepair":       10
+    "inclusionTimeout": 60000
   },
   "objects": [
   ],
