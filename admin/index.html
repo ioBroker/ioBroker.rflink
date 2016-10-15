@@ -20,6 +20,31 @@
         width: 120px;
     }
 
+    @keyframes highlight {
+        0% {
+            color: #00f900
+        }
+        80% {
+            color: green
+        }
+        100% {
+            color: black;
+        }
+    }
+    .pair-on {
+        background: rgb(255, 153, 153) !important;
+    }
+    .error {
+        color: rgb(255, 15, 15);
+    }
+    #devices tr:nth-child(even) {
+        background: lightgray;
+    }
+    .highlight {
+        animation: highlight 2s;
+    }
+
+
 </style>
 <script type="text/javascript">
     // Dictionary (systemDictionary is global variable from adapter-settings.js)
@@ -32,7 +57,6 @@
             "de": "RFLink Einstellungen",
             "ru": "Настройки RFLink драйвера"
         },
-        "Type:":                {"en": "Type:",             "de": "Typ:",               "ru": "Тип:"},
         "serial":               {"en": "serial",            "de": "serial",             "ru": "COM порт"},
         "Not available":        {"en": "Not available",     "de": "Nicht möglich",      "ru": "недоступно"},
         "Com port:":            {"en": "Com port:",         "de": "Serialport:",        "ru": "Имя порта:"},
@@ -52,12 +76,20 @@
             "de": "Anlernen-Modus ist aktiv",
             "ru": "Режим присваивания адресов активирован"
         },
-        "Ok":                   {"en": "Ok",                "de": "Ok",                 "ru": "Ok"}
+        "Ok":                   {"en": "Ok",                "de": "Ok",                 "ru": "Ok"},
+        "Options":              {"en": "Options",           "de": "Einstellungen", "ru": "Options"},
+        "Devices":              {"en": "Devices",           "de": "Geräte", "ru": "Devices"},
+        "Timeout for auto re-pair (minutes):": {"en": "Timeout for auto re-pair (minutes):", "de": "Timeout for auto re-pair (minutes):", "ru": "Timeout for auto re-pair (minutes):"},
+        "Brand":                {"en": "Brand",             "de": "Firma", "ru": "Brand"},
+        "Number":               {"en": "Number",            "de": "Number", "ru": "Number"},
+        "Auto re-pair":         {"en": "Auto re-pair",      "de": "Auto re-pair", "ru": "Auto re-pair"},
+        "Values":               {"en": "Values",            "de": "Values", "ru": "Values"},
+        "Pair":                 {"en": "Pair",              "de": "Pair", "ru": "Pair"},
+        "Are you sure?":        {"en": "Are you sure?",     "de": "Are you sure?", "ru": "Are you sure?"}
     };
 
     var timeout;
-    var pairs = [];
-    var inclusion = false;
+    var channels = {};
 
     function getComPorts(actualValue) {
         timeout = setTimeout(function () {
@@ -126,21 +158,23 @@
 
     function showDevice(obj) {
         var text = '';
-        text += '<td style="text-align: right;">'  + obj.common.name  + '</td>';
-        text += '<td style="text-align: center;">' + obj.native.brand + '</td>';
-        text += '<td style="text-align: center;">' + obj.native.ID    + '</td>';
-        text += '<td style="text-align: center;" class="raw-value"   data-id="' + obj._id + '"></td>';
+        text += '<td style="text-align: right; white-space: nowrap;"' +
+                ((obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') ? 'class="error" title="' + _('No address') + '"' : '') + '>'  + obj.native.brand  + '</td>';
+        text += '<td style="text-align: center;">' + obj.native.index + '</td>';
+        text += '<td style="text-align: center;"><input class="auto-repair" type="checkbox" data-id="' + obj._id + '" ' + (obj.native.autoRepair ? 'checked' : '') + ' /></td>';
+        //text += '<td style="text-align: right;">'  + obj.native.ID    + '</td>';
+        text += '<td style="text-align: left;"   class="raw-value"   data-id="' + obj._id + '"></td>';
         text += '<td style="text-align: center"><button class="pair" data-id="' + obj._id + '"></button></td>';
         text += '<td style="text-align: center"><button class="del"  data-id="' + obj._id + '"></button></td>';
 
-        if (objects[obj._id]) {
-            $('tr[data-channel="' + id + '"]').html(text);
+        if (channels[obj._id]) {
+            $('tr[data-channel="' + obj._id + '"]').html(text);
         } else {
             text = '<tr class="device" data-channel="' + obj._id + '">' + text + '</tr>';
             $('#devices').append(text);
         }
 
-        objects[obj._id] = obj;
+        channels[obj._id] = obj;
 
         $('.del[data-id="' + obj._id + '"]').button({
             text: false,
@@ -156,109 +190,48 @@
                             deleteState(res.rows[i].id);
                         }
                         $('tr[data-channel="' + id + '"]').remove();
-                        delete objects[id];
+                        delete channels[id];
                     });
                 });
             }
         });
 
-        $('.pair[data-id="' + obj._id + '"]').button({
+        $('.auto-repair[data-id="' + obj._id + '"]').change(function () {
+            var $this = $(this);
+            var id = $this.data('id');
+            $this.prop('disabled', true);
+            channels[id].native.autoRepair != channels[id].native.autoRepair;
+            socket.emit('setObject', id, channels[id], function (err) {
+                // button will be re-drawn on change
+            });
+        });
+
+        var $pair = $('.pair[data-id="' + obj._id + '"]');
+        $pair.button({
             text: false,
             icons: {
                 primary: 'ui-icon-transfer-e-w'
             }
         }).css({width: 22, height: 22}).unbind('click').click(function () {
-            var id = $(this).data('id');
-            var pos;
-            if ((pos = pairs.indexOf(id)) === -1) {
-                pairs.push(id);
-                $(this).addClass('ui-state-active ui-state-hover');
+            var $this = $(this);
+            var id = $this.data('id');
+            $this.button('disable');
+
+            if (!channels[id].native.pair) {
+                channels[id].native.pair = true;
+                channels[id].native.ID   = null; // Reset ID
             } else {
-                $(this).removeClass('ui-state-active ui-state-hover');
-                pairs.splice(pos, 1);
+                channels[id].native.pair = false;
             }
+
+            socket.emit('setObject', id, channels[id], function (err) {
+                // button will be re-drawn on change
+            });
         });
-    }
 
-    function addNewDevice(frame, attrs) {
-        // find unique ID
-        var num = 1;
-        var found;
-        var newId;
-        do {
-            found = false;
-            newId = 'rflink.' + instance + '.' + frame.brand + '_' + num;
-            for (var id in objects) {
-                if (id === newId) {
-                    found = true;
-                    num++;
-                    break;
-                }
-            }
-        } while(found);
-
-        // add new device
-        var channelObj = {
-            _id: newId,
-            common: {
-                name: frame.brand + ' ' + num,
-                role: ''
-            },
-            native: {
-                ID:    frame.ID,
-                brand: frame.brand,
-                attrs: attrs
-            },
-            type: 'channel'
-        };
-
-        var objs = analyseFrame(frame, newId);
-
-        // analyse if some switches are there
-        for (var id in objs) {
-            if (objs[id].native.switch !== undefined) {
-                channelObj.native.switches = [objs[id].native.switch];
-                break;
-            }
+        if (obj.native.pair) {
+            $pair.addClass('pair-on');
         }
-
-        objs.push(channelObj);
-
-        function insertObjs(_objs) {
-            if (!_objs || !_objs.length) {
-                console.log('done ' + deviceId);
-                callback && callback();
-            } else {
-                var obj = _objs.pop();
-                console.log('Add ' + objs._id);
-                socket.emit('getObject', obj._id, function (err, oldObj) {
-                    if (!oldObj) {
-                        setTimeout(function () {
-                            socket.emit('setObject', obj._id, obj, function () {
-                                insertObjs(_objs);
-                            });
-                        }, 50);
-                    } else {
-                        // merge switches
-                        if (oldObj.native.switches) {
-                            for (var s = 0; s < obj.native.switches.length; s++) {
-                                if (oldObj.native.switches.indexOf(obj.native.switches[s]) === -1) oldObj.native.switches.push(obj.native.switches[s]);
-                            }
-                            obj.native.switches = oldObj.native.switches;
-                        }
-
-                        oldObj.native = obj.native;
-                        setTimeout(function () {
-                            socket.emit('setObject', oldObj._id, oldObj, function () {
-                                insertObjs(_objs);
-                            });
-                        }, 50)
-                    }
-                });
-            }
-        }
-
-        insertObjs(objs);
     }
 
     function load(settings, onChange) {
@@ -269,16 +242,16 @@
 
         $('#enableInclusion').button().hide();
 
+        $('#tabs').show().tabs();
+
         setTimeout(function () {
             socket.emit('getState', adapter + '.' + instance + '.inclusionOn', function (err, state) {
                 if (err) window.alert(err);
-                inclusion = state && state.val;
 
                 $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode')).show().click(function () {
                     socket.emit('getState', adapter + '.' + instance + '.inclusionOn', function (err, state) {
                         state     = state || {val: false};
                         state.val = !state.val;
-                        inclusion = state.val;
 
                         $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
 
@@ -307,8 +280,8 @@
 
         socket.emit('getObjectView', 'system', 'channel', {startkey: 'rflink.' + instance + '.', endkey: 'rflink.' + instance + '.\u9999', include_docs: true}, function (err, res) {
             res.rows.sort(function (a, b) {
-                if (a.value.native.address > b.value.native.address) return 1;
-                if (a.value.native.address < b.value.native.address) return -1;
+                if (a.value.native.brand > b.value.native.brand) return 1;
+                if (a.value.native.brand < b.value.native.brand) return -1;
                 return 0;
             });
 
@@ -321,14 +294,12 @@
             if (!obj) {
                 $('tr[data-channel="' + id + '"]').remove();
             } else {
-                showDevice(obj);
+                if (obj.type === 'channel') showDevice(obj);
             }
         });
 
         socket.on('stateChange', function (id, state) {
             if (id === 'rflink.' + instance + '.inclusionOn') {
-                inclusion = state && state.val;
-
                 $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
             } else {
                 // analyse rawData
@@ -337,65 +308,23 @@
                 // received something like:
                 // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
                 var frame = parseString(state.val);
+                if (!frame) return;
                 var _id;
-                var pos;
 
-                for (_id in objects) {
-                    if (!objects.hasOwnProperty(_id)) continue;
+                for (_id in channels) {
+                    if (!channels.hasOwnProperty(_id) || !channels[_id].native) continue;
 
-                    if (objects[_id].native.brand === frame.brand && objects[_id].native.ID === frame.ID &&
-                            (frame.SWITCH === undefined || (objects[_id].native.switches && objects[_id].native.switches.indexOf(frame.SWITCH) !== -1))
+                    if (channels[_id].native.brand === frame.brandRaw &&
+                        channels[_id].native.ID === frame.ID &&
+                        (frame.SWITCH === undefined || (channels[_id].native.switches && channels[_id].native.switches.indexOf(frame.SWITCH) !== -1))
                     ) {
                         delete frame.ID;
                         delete frame.brand;
+                        delete frame.brandRaw;
 
-                        $('.raw-value[data-id="' + _id + '"]').html(JSON.stringify(frame));
-                        // disable pairing, because channel yet exists
-                        if ((pos = pairs.indexOf(id)) !== -1) {
-                            $('.pair[data-id="' + id + '"]').removeClass('ui-state-active ui-state-hover');
-                            pairs.splice(pos, 1);
-                        }
+                        $('.raw-value[data-id="' + _id + '"]').html('<span class="highlight">' + stringifyFrame(frame) + '</span>');
                         return;
                     }
-                }
-                var attrs = [];
-                for (var attr in frame) {
-                    if (attr === 'brand' || attr === 'ID') return;
-                    attrs.push(attr);
-                }
-                attrs.sort();
-                attrs = attrs.join(';');
-
-                // find in pairs suitable device
-                for (_id in objects) {
-                    if (!objects.hasOwnProperty(_id)) continue;
-
-                    // If device suits to it
-                    if (objects[_id].native.brand === frame.brand && objects[_id].native.attrs === attrs &&
-                            (frame.SWITCH === undefined || (objects[_id].native.switches && objects[_id].native.switches.indexOf(frame.SWITCH) !== -1))
-                    ) {
-                        // if pairing active
-                        if ((pos = pairs.indexOf(id)) !== -1) {
-                            objects[id].native.ID = frame.ID;
-                            delete frame.ID;
-                            delete frame.brand;
-
-                            $('.raw-value[data-id="' + _id + '"]').html(JSON.stringify(frame));
-
-                            socket.emit('setObject', id, objects, function (err, obj) {
-                                if (!err) {
-                                    showDevice(objects[id]);
-                                }
-                            });
-                            $('.pair[data-id="' + id + '"]').removeClass('ui-state-active ui-state-hover');
-                            pairs.splice(pos, 1);
-                            return;
-                        }
-                    }
-                }
-
-                if (inclusion) {
-                    addNewDevice(frame, attrs);
                 }
             }
         });
@@ -429,17 +358,17 @@
         font-size: small;
     }
 </style>
-    <div id="adapter-container">
-        <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
-        <div id="tabs">
+    <div id="adapter-container" style="width: 100%; height: 100%; overflow: hidden">
+        <div id="tabs" style="width: 100%; height: 100%; overflow: hidden; display: none;">
             <ul>
-                <li><a href="#tabs-1" class="translate">Poll</a></li>
-                <li><a href="#tabs-2" class="translate">GPIOs</a></li>
+                <li><a href="#tabs-1" class="translate">Options</a></li>
+                <li><a href="#tabs-2" class="translate">Devices</a></li>
             </ul>
             <div id="tabs-1">
+                <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
                 <table>
-                    <tr class="serial"><td class="translate">Com port:</td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
-                    <tr class="serial"><td class="translate">Baud rate:</td><td><select class="value oneWidth" id="baudRate">
+                    <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
+                    <tr class="serial"><td><label for="baudRate" class="translate">Baud rate:</label></td><td><select class="value oneWidth" id="baudRate">
                         <option value="110">110</option>
                         <option value="150">150</option>
                         <option value="300">300</option>
@@ -454,21 +383,23 @@
                         <option value="57600">57600</option>
                         <option value="115200">115200</option>
                     </select></td><td></td></tr>
-                    <tr class="udp serial"><td class="translate">Connection timeout:</td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
-                    <tr class="tcp udp serial"><td class="translate">Inclusion mode timeout:</td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
-                    <tr class="tcp udp serial"><td></td><td><button id="enableInclusion" class="translateB">Enable inclusion mode</button></td><td><div id="inclusionState"></div></td></tr>
+                    <tr><td><label for="connTimeout" class="translate">Connection timeout:</label></td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
+                    <tr><td><label for="inclusionTimeout" class="translate">Inclusion mode timeout:</label></td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
+                    <tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair (minutes):</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">inclusion help</span></td></tr>
+                    <tr><td></td><td><button id="enableInclusion" class="translateB">Enable inclusion mode</button></td><td><div id="inclusionState"></div></td></tr>
                 </table>
             </div>
-            <div id="tabs-2">
-                <table>
+            <div id="tabs-2" style="width: 100%; height: calc(100% - 40px); overflow-x: hidden; overflow-y: auto; padding: 0">
+                <table style="width: 100%;">
                     <thead>
                     <tr class="ui-widget-header">
-                        <td style="width: 100px; text-align: center" class="translate">Brand</td>
-                        <td style="width: 70px;  text-align: center" class="translate">Name</td>
-                        <td style="width: 70px;  text-align: center" class="translate">ID</td>
-                        <td style="width: 100px; text-align: center" class="translate">Values</td>
-                        <td style="width: 30px;  text-align: center" class="translate">Pair</td>
-                        <td style="width: 30px;  text-align: center" class="translate"></td>
+                        <td style="width: 100px; text-align: center; white-space: nowrap; white-space: nowrap" class="translate">Brand</td>
+                        <td style="width: 70px;  text-align: center; white-space: nowrap" class="translate">Number</td>
+                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair</td>
+                        <!--td style="width: 50px;  text-align: center" class="translate">ID</td-->
+                        <td style="width: 200px; text-align: left; white-space: nowrap"   class="translate">Values</td>
+                        <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate">Pair</td>
+                        <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate"></td>
                     </tr>
                     </thead>
                     <tbody id="devices">

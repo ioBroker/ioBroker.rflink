@@ -6,10 +6,11 @@ var decoders = {
         return value;
     },
     CMD: function(value) {
-        if (value.indexOf('SET_LEVEL') > -1) {
+        if (value.indexOf('SET_LEVEL') !== -1) {
             return parseInt(value.split('=')[1], 10);
         } else {
-            return value.indexOf('ON') > -1;
+            if (value[0] >= '0' && value[0] <= '9') return parseInt(value, 10);
+            return value.indexOf('ON') !== -1;
         }
     },
     SET_LEVEL: function(value) {
@@ -28,7 +29,7 @@ var decoders = {
         if (result >= 32768) {
             result = 32768 - result;
         }
-        return result / 10.0;
+        return result / 10;
     },
     HUM: function(value) {
         return parseInt(value, 10);
@@ -58,16 +59,16 @@ var decoders = {
         return parseInt(value, 16);
     },
     WINSP: function(value) {
-        return parseInt(value, 16) / 10.0;
+        return parseInt(value, 16) / 10;
     },
     AWINSP: function(value) {
-        return parseInt(value, 16) / 10.0;
+        return parseInt(value, 16) / 10;
     },
     WINGS: function(value) {
         return parseInt(value, 16);
     },
     WINDIR: function(value) {
-        return parseInt(value) * 100 / 15;
+        return Math.round(parseInt(value) * 10000 / 15) / 100;
     },
     WINCHL: function(value) {
         return parseInt(value, 16);
@@ -124,10 +125,12 @@ var encoders = {
         return value;
     },
     CMD: function(value, isBlind) {
-        if (value === true || value === 'true' || value === 1 || value === '1') {
+        if (value === true || value === 'true') {
             return isBlind ? 'UP' : 'ON';
-        } else {
+        } else if (value === false || value === 'false') {
             return isBlind ? 'DOWN' : 'OFF';
+        } else{
+            return value.toString();
         }
     },
     SET_LEVEL: function(value) {
@@ -221,10 +224,9 @@ var encoders = {
     }
 };
 
-function convertValue(attr, raw) {
-    var conv = attr.toLowerCase();
-    if (decoders[conv]) {
-        return decoders[conv](raw)
+function decodeValue(attr, raw) {
+    if (decoders[attr]) {
+        return decoders[attr](raw)
     } else {
         var f = parseFloat(raw);
         if (f == raw) return f;
@@ -234,31 +236,58 @@ function convertValue(attr, raw) {
     }
 }
 
+function encodeValue(attr, value, type) {
+    if (type === 'blind') {
+        if (value === true || value === 'true') {
+            return 'UP';
+        } else {
+            return 'DOWN';
+        }
+    } else
+    if (encoders[attr]) {
+        return encoders[attr](value)
+    } else {
+        return value.toString();
+    }
+}
+
 function parseString(rawData) {
     // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
-    var parts = state.val.split(';');
+    if (rawData.indexOf('DEBUG') !== -1) {
+        return null;
+    }
+    var parts = rawData.split(';');
     if (parts[0] === '20') {
         parts.splice(0, 2);
     }
+    if (!parts[parts.length - 1]) parts.splice(parts.length - 1, 1);
+
     if (parts.length < 3) return null;
     var frame = {
-        brand: parts[0]
+        brand: parts[0],
+        dataRaw: rawData
     };
 
     for (var i = 1; i < parts.length; i++) {
         var pp = parts[i].split('=');
-        frame[pp[0]] = pp[1];
+        frame[pp[0]] = decodeValue(pp[0], pp[pp.length - 1]);
+        if (pp[0] === 'CMD') {
+            if (pp[1] === 'UP'    || pp[1] === 'DOWN')   frame.blind = true;
+            if (pp[1] === 'ALLON' || pp[1] === 'ALLOFF') frame.all   = true;
+            if (pp[1] === 'SET_LEVEL')                   frame.set_level = true;
+        }
     }
     if (!frame.ID) {
-        console.warn('Cannot find ID in ' + state.val);
+        console.warn('Cannot find ID in ' + rawData);
         return null;
     }
-    if (frame.brand) frame.brand = frame.brand.replace(/\./g, '_');
+    if (frame.brand) {
+        frame.brandRaw = frame.brand;
+        frame.brand = frame.brand.replace(/[.\s]/g, '_');
+    }
 
     return frame;
 }
-
-var cmdSwitch = ['ON', 'OFF', 'ALLON', 'ALLOFF', 'UNKOWN'];
 
 var types = {
     'TEMP':      {name: 'Temperature',        role: 'value.temperature',        unit: 'C°',    type: 'number'},
@@ -285,22 +314,26 @@ var types = {
     'VOLT':      {name: 'Voltage',            role: 'value.voltage',            unit: 'V',     type: 'number'}
 };
 
-function analyseFrame(frame, instance, index) {
+var doNotProcess = [
+    'brand', 'ID', 'SWITCH', 'brandRaw', 'blind', 'all', 'set_level', 'dataRaw', 'chime'
+];
+
+function analyseFrame(frame, newId, index) {
     var objs = [];
     var native = {
         ID:    frame.ID,
-        brand: frame.brand
+        brand: frame.brandRaw
     };
     var obj;
     for (var attr in frame) {
-        if (!frame.hasOwnProperty(attr) || attr === 'brand' || attr === 'ID' || attr === 'SWITCH') continue;
+        if (!frame.hasOwnProperty(attr) || doNotProcess.indexOf(attr) !== -1) continue;
 
-        if (attr === 'CMD' && cmdSwitch.indexOf(frame.CMD) !== -1 && frame.SWITCH !== undefined) {
+        if (attr === 'CMD' && (typeof frame[attr] === 'boolean') && !frame.blind && !frame.all && frame.SWITCH !== undefined) {
             //switch
             obj = {
-                _id:       'rflink.' + instance + '.' + frame.brand + '.' + index + '.SWITCH_' + frame.SWITCH.toString(),
+                _id:       newId + '.SWITCH_' + frame.SWITCH.toString(),
                 common: {
-                    name:  frame.brand + ' ' + index + ' Switch ' + frame.SWITCH.toString(),
+                    name:  frame.brandRaw + ' ' + index + ' Switch ' + frame.SWITCH.toString(),
                     type:  'boolean',
                     role:  'switch',
                     read:  true,
@@ -309,14 +342,51 @@ function analyseFrame(frame, instance, index) {
                 native: JSON.parse(JSON.stringify(native)),
                 type:   'state'
             };
+            obj.native.attr   = attr;
             obj.native.switch = frame.SWITCH;
             objs.push(obj);
-        } else if (attr === 'CMD' && (frame.CMD === 'DOWN' || frame.CMD === 'UP') && frame.SWITCH !== undefined) {
+        } else if (attr === 'CMD' && frame.all && frame.SWITCH !== undefined) {
             //switch
             obj = {
-                _id:       'rflink.' + instance + '.' + frame.brand + '.' + index + '.BLIND_' + frame.SWITCH.toString(),
+                _id:       newId + '.ALL_' + frame.SWITCH.toString(),
                 common: {
-                    name:  frame.brand + ' ' + index + ' Blind ' + frame.SWITCH.toString(),
+                    name:  frame.brandRaw + ' ' + index + ' Switch ALL ' + frame.SWITCH.toString(),
+                    type:  'boolean',
+                    role:  'switch',
+                    read:  true,
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr   = attr;
+            obj.native.all    = true;
+            obj.native.switch = frame.SWITCH;
+            objs.push(obj);
+        } else if (attr === 'CMD' && frame.set_level && frame.SWITCH !== undefined) {
+            //switch
+            obj = {
+                _id:       newId + '.SET_LEVEL_' + frame.SWITCH.toString(),
+                common: {
+                    name:  frame.brandRaw + ' ' + index + ' Set level ' + frame.SWITCH.toString(),
+                    type:  'number',
+                    role:  'level.dimmer',
+                    read:  true,
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr      = attr;
+            obj.native.set_level = true;
+            obj.native.switch    = frame.SWITCH;
+            objs.push(obj);
+        } else if (attr === 'CMD' && frame.blind && frame.SWITCH !== undefined) {
+            //switch
+            obj = {
+                _id:       newId + '.BLIND_' + frame.SWITCH.toString(),
+                common: {
+                    name:  frame.brandRaw + ' ' + index + ' Blind ' + frame.SWITCH.toString(),
                     type:  'boolean',
                     role:  'blind',
                     read:  true,
@@ -327,12 +397,13 @@ function analyseFrame(frame, instance, index) {
             };
             obj.native.switch = frame.SWITCH;
             obj.native.attr   = attr;
+            obj.native.blind  = true;
             objs.push(obj);
         } else if (attr === 'RGBW' && frame.SWITCH !== undefined) {
             obj = {
-                _id:      'rflink.' + instance + '.' + frame.brand + '.' + index + '.RGBW_' + frame.SWITCH.toString(),
+                _id:      newId + '.RGBW_' + frame.SWITCH.toString(),
                 common: {
-                    name:  frame.brand + ' ' + index + ' RGBW ' + frame.SWITCH.toString(),
+                    name:  frame.brandRaw + ' ' + index + ' RGBW ' + frame.SWITCH.toString(),
                     type:  'string',
                     role:  'level.rgbw',
                     read:  true,
@@ -344,26 +415,40 @@ function analyseFrame(frame, instance, index) {
             obj.native.switch = frame.SWITCH;
             obj.native.attr   = attr;
             objs.push(obj);
+        } else if (attr === 'CHIME' && frame.SWITCH !== undefined) {
+            obj = {
+                _id:      newId + '.CHIME_' + frame.SWITCH.toString(),
+                common: {
+                    name:  frame.brandRaw + ' ' + index + ' Chime ' + frame.SWITCH.toString(),
+                    type:  'number',
+                    role:  'state',
+                    read:  true,
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.switch = frame.SWITCH;
+            obj.native.attr   = attr;
+            objs.push(obj);
         } else if (types[attr]) {
             obj = {
-                _id:    'rflink.' + instance + '.' + frame.brand + '.' + index + '.' + attr,
+                _id:    newId + '.' + attr,
                 common: types[attr],
                 native: JSON.parse(JSON.stringify(native)),
                 type:   'state'
             };
+            obj.native.attr = attr;
             obj.common.read  = true;
             obj.common.write = false;
-            obj.common.name  = frame.brand + ' ' + index + ' ' + (obj.common.name || attr);
+            obj.common.name  = frame.brandRaw + ' ' + index + ' ' + (obj.common.name || attr);
+            objs.push(obj);
         } else {
             // Common state
             obj = {
-                _id:      'rflink.' + instance + '.' + frame.brand + '.' + index + '.' + attr,
+                _id:      newId + '.' + attr,
                 common: {
-                    type: (frame.attr === 'OK' ||
-                           frame.attr === 'LOW' ||
-                           frame.attr === 'ON' ||
-                           frame.attr === 'OFF') ?
-                        'boolean' : 'number',
+                    type:  typeof frame[attr],
                     read:  true,
                     write: false
                 },
@@ -371,17 +456,45 @@ function analyseFrame(frame, instance, index) {
                 type:   'state'
             };
             obj.native.attr = attr;
-            obj.common.name = frame.brand + ' ' + index + ' ' + attr;
+            obj.common.name = frame.brandRaw + ' ' + index + ' ' + attr;
             obj.common.role = obj.common.type === 'boolean' ? 'indicator' : 'state';
+            objs.push(obj);
         }
     }
 
     return objs;
 }
 
+function stringifyFrame(frame, max) {
+    var text = '';
+    var count = 0;
+    for (var attr in frame) {
+        if (doNotProcess.indexOf(attr) !== -1) continue;
+        if (attr === 'CMD') {
+            if (frame.blind) {
+                text += (text ? ', ': '') + '<b>BLIND ' + frame.SWITCH + '</b>: ' + frame[attr];
+            } else if (frame.set_level) {
+                text += (text ? ', ': '') + '<b>SET_LEVEL ' + frame.SWITCH + '</b>: ' + frame[attr];
+            } else if (frame.all) {
+                text += (text ? ', ': '') + '<b>ALL ' + frame.SWITCH + '</b>: ' + frame[attr];
+            } else  {
+                text += (text ? ', ': '') + '<b>SWITCH ' + frame.SWITCH + '</b>: ' + frame[attr];
+            }
+        }
+        text += (text ? ', ': '') + '<b>' + attr + '</b>: ' + frame[attr];
+        count++;
+        if (max && count >= max) break;
+    }
+
+    return text;
+}
+
 if (typeof module !== 'undefined' && module.parent) {
     module.exports = {
         parseString:    parseString,
-        analyseFrame:   analyseFrame
+        analyseFrame:   analyseFrame,
+        encodeValue:    encodeValue,
+        doNotProcess:   doNotProcess,
+        stringifyFrame: stringifyFrame
     };
 }
