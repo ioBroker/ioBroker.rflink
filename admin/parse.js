@@ -446,7 +446,7 @@ function analyseFrame(frame, newId, index) {
             obj.native.offset = 0;
             obj.common.read   = true;
             obj.common.write  = false;
-            obj.common.name   = frame.brandRaw + ' ' + index + ' ' + (obj.common.name || attr);
+            obj.common.name   = frame.brandRaw + '_ ' + index + '$ ' + (obj.common.name || attr);
             objs.push(obj);
         } else {
             // Common state

@@ -247,7 +247,7 @@ function addNewDevice(frame, attrs, callback) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
 
                                 if (typeof frame[obj.native.attr] === 'number') {
-                                    
+
                                 }
 
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
