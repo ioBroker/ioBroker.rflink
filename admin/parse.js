@@ -313,7 +313,8 @@ var types = {
     'CURRENT2':  {name: 'Current phase 2',    role: 'value.current',            unit: 'A',     type: 'number'},
     'CURRENT3':  {name: 'Current phase 3',    role: 'value.current',            unit: 'A',     type: 'number'},
     'DIST':      {name: 'Distance',           role: 'value.distance',           unit: 'm',     type: 'number'},
-    'VOLT':      {name: 'Voltage',            role: 'value.voltage',            unit: 'V',     type: 'number'}
+    'VOLT':      {name: 'Voltage',            role: 'value.voltage',            unit: 'V',     type: 'number'},
+    'BAT':       {name: 'Low battery',        role: 'indicator.battery',                       type: 'boolean'}
 };
 
 var doNotProcess = [
