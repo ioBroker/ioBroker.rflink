@@ -319,7 +319,7 @@ var types = {
 };
 
 var doNotProcess = [
-    'brand', 'ID', 'SWITCH', 'brandRaw', 'blind', 'all', 'set_level', 'dataRaw', 'chime'
+    'brand', 'ID', 'SWITCH', 'brandRaw', 'blind', 'all', 'set_level', 'dataRaw', 'chime', 'offset', 'factor', 'autoRepair', 'autoRepairProblem'
 ];
 
 function analyseFrame(frame, newId, index) {
@@ -495,6 +495,8 @@ function stringifyFrame(frame, max) {
 
     return text;
 }
+
+
 
 if (typeof module !== 'undefined' && module.parent) {
     module.exports = {

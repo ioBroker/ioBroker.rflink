@@ -86,7 +86,7 @@ adapter.on('objectChange', function (id, obj) {
         if (obj.type === 'state') {
             states[id] = obj
         } else if (obj.type === 'channel') {
-            if (obj.native.autoRepair !== undefined) obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
+            //if (obj.native.autoRepair !== undefined) obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
 
             if (obj.native.autoRepair) {
                 lastReceived[id] = new Date().getTime();
@@ -200,7 +200,7 @@ function addNewDevice(frame, attrs, callback) {
                 brand:      frame.brandRaw,
                 attrs:      attrs,
                 index:      index,
-                autoRepair: 5
+                autoRepair: false
             },
             type: 'channel'
         };
@@ -250,6 +250,7 @@ function addNewDevice(frame, attrs, callback) {
                                 if (typeof frame[obj.native.attr] === 'number' && obj.native.factor) {
                                     frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
                                 }
+                                adapter.setState('rawData', frame.dataRaw, true);
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });
@@ -271,6 +272,10 @@ function addNewDevice(frame, attrs, callback) {
                         }
                     }
 
+                    if (oldObj.native.factor     !== undefined) obj.native.factor     = oldObj.native.factor;
+                    if (oldObj.native.offset     !== undefined) obj.native.offset     = oldObj.native.offset;
+                    if (oldObj.native.autoRepair !== undefined) obj.native.autoRepair = oldObj.native.autoRepair;
+
                     oldObj.native = obj.native;
                     setTimeout(function () {
                         adapter.setForeignObject(oldObj._id, oldObj, function () {
@@ -281,6 +286,7 @@ function addNewDevice(frame, attrs, callback) {
                                     frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
                                 }
 
+                                adapter.setState('rawData', frame.dataRaw, true);
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });
@@ -375,8 +381,8 @@ function processFrame(frame, isAdd, callback) {
                         count++;
                         adapter.log.debug('Set state "' + id + '.' + _attr + '": ' + frame[_attr]);
 
-                        if (typeof frame[_attr] === 'number' && states[id + '.' + _attr].factor) {
-                            frame[_attr] = states[id + '.' + _attr].factor * frame[_attr] + states[id + '.' + _attr].offset;
+                        if (typeof frame[_attr] === 'number' && states[id + '.' + _attr].native.factor) {
+                            frame[_attr] = states[id + '.' + _attr].native.factor * frame[_attr] + states[id + '.' + _attr].native.offset;
                         }
 
                         adapter.setForeignState(id + '.' + _attr, frame[_attr], true, function () {
@@ -402,21 +408,21 @@ function processFrame(frame, isAdd, callback) {
 
     // pairs
     // find in pairs suitable device
-    for (var __id in channels) {
-        if (!channels.hasOwnProperty(__id) || !channels[__id].native) continue;
+    for (var j in channels) {
+        if (!channels.hasOwnProperty(j) || !channels[j].native) continue;
 
         // If device suits to it
-        if (channels[__id].native.pair && channels[__id].native.brand === frame.brandRaw &&
-            channels[__id].native.attrs === attrs &&
-            (frame.SWITCH === undefined || (channels[__id].native.switches && channels[__id].native.switches.indexOf(frame.SWITCH) !== -1))
+        if (channels[j].native.pair && channels[j].native.brand === frame.brandRaw &&
+            channels[j].native.attrs === attrs &&
+            (frame.SWITCH === undefined || (channels[j].native.switches && channels[j].native.switches.indexOf(frame.SWITCH) !== -1))
         ) {
-            adapter.log.debug('Pair "' + __id + ': old ID ' + channels[__id].native.ID + ', new ID ' + frame.ID);
+            adapter.log.debug('Pair "' + j + ': old ID ' + channels[j].native.ID + ', new ID ' + frame.ID);
 
-            channels[__id].native.pair = false;
-            channels[__id].native.ID   = frame.ID;
-            if (channels[__id].native.autoPairProblem !== undefined) delete channels[__id].native.autoPairProblem;
+            channels[j].native.pair = false;
+            channels[j].native.ID   = frame.ID;
+            if (channels[j].native.autoPairProblem !== undefined) delete channels[j].native.autoPairProblem;
 
-            adapter.setForeignObject(__id, channels[__id], function (err) {
+            adapter.setForeignObject(j, channels[j], function (err) {
                 if (err) adapter.log.error('Cannot set object : ' + err);
                 processFrame(frame, isAdd, callback);
             });
@@ -425,39 +431,41 @@ function processFrame(frame, isAdd, callback) {
     }
 
     // autoPairs
-    var pairs = [];
+    var pairs      = [];
+    var autoRepair = [];
     for (var __id in channels) {
         if (!channels.hasOwnProperty(__id) || !channels[__id].native) continue;
 
         // If device suits to it
-        if (channels[__id].native.autoPair && channels[__id].native.brand === frame.brandRaw &&
+        if (channels[__id].native.brand === frame.brandRaw &&
             channels[__id].native.attrs === attrs &&
             (frame.SWITCH === undefined || (channels[__id].native.switches && channels[__id].native.switches.indexOf(frame.SWITCH) !== -1))
         ) {
             adapter.log.debug('Pair "' + __id + ': old ID ' + channels[__id].native.ID + ', new ID ' + frame.ID);
 
             pairs.push(__id);
+
+            if (channels[__id].native.autoRepair) autoRepair.push(__id);
         }
     }
 
-    if (pairs.length === 1) {
-        channels[__id].native.autoPair = false;
-        if (channels[__id].native.autoPairProblem !== undefined) delete channels[__id].native.autoPairProblem;
-        channels[__id].native.ID       = frame.ID;
+    if (pairs.length === 1 && channels[pairs[0]].native.autoRepair) {
+        if (channels[pairs[0]].native.autoPairProblem !== undefined) delete channels[pairs[0]].native.autoPairProblem;
+        channels[pairs[0]].native.ID = frame.ID;
 
-        adapter.setForeignObject(__id, channels[__id], function (err) {
-            if (err) adapter.log.error('Cannot set object : ' + err);
+        adapter.setForeignObject(pairs[0], channels[pairs[0]], function (err) {
+            if (err) adapter.log.error('Cannot set object: ' + err);
             processFrame(frame, isAdd, callback);
         });
         return;
-    } else if (pairs.length > 1) {
+    } else if (pairs.length > 1 && autoRepair.length) {
         // Problem more than one device suits to it
         adapter.log.warn('Cannot auto pair because following sensors have similar parameters: ' + pairs.join(', '));
         for (var i = 0; i < pairs.length; i++) {
             if (!channels[pairs[i]].native.autoPairProblem) {
                 channels[pairs[i]].native.autoPairProblem = true;
-                adapter.setForeignObject(__id, channels[__id], function (err) {
-                    if (err) adapter.log.error('Cannot set object : ' + err);
+                adapter.setForeignObject(pairs[i], channels[pairs[i]], function (err) {
+                    if (err) adapter.log.error('Cannot set object: ' + err);
                 });
             }
         }
@@ -477,6 +485,8 @@ function processFrame(frame, isAdd, callback) {
     }
 }
 
+// deactivated
+/*
 function checkAutoRepair() {
     var now = new Date().getTime();
     for (var id in channels) {
@@ -490,7 +500,7 @@ function checkAutoRepair() {
         }
     }
 }
-
+*/
 function main() {
     adapter.config.inclusionTimeout = parseInt(adapter.config.inclusionTimeout, 10) || 0;
 
@@ -512,11 +522,13 @@ function main() {
             // Mark all sensors as if they received something
             for (var id in channels) {
                 if (!channels.hasOwnProperty(id)) continue;
-                channels[id].native.autoRepair = parseInt(channels[id].native.autoRepair, 10) || 0;
+                // autoRepair is true or false
+                //channels[id].native.autoRepair = parseInt(channels[id].native.autoRepair, 10) || 0;
 
                 if (channels[id].native.autoRepair) lastReceived[id] = new Date().getTime();
             }
-            repairInterval = setInterval(checkAutoRepair, 60000);
+            // deactivated
+            //repairInterval = setInterval(checkAutoRepair, 60000);
 
             comm = new Serial(adapter.config, adapter.log, function (err) {
                 // done

@@ -1,6 +1,5 @@
 <html>
 
-<script src="../../../ioBroker.admin/admin.js"></script>
 <link rel="stylesheet" type="text/css" href="../../lib/css/themes/jquery-ui/redmond/jquery-ui.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../lib/css/jqGrid/ui.jqgrid-4.5.4.css"/>
 <link rel="stylesheet" type="text/css" href="../../lib/css/jquery.multiselect-1.13.css"/>
@@ -19,7 +18,20 @@
     .oneWidth {
         width: 120px;
     }
-
+    .pair-on {
+        background: rgb(255, 153, 153) !important;
+    }
+    .no-address {
+        color: rgb(255, 15, 15);
+        font-weight: bold;
+    }
+    .auto-pair-problem {
+        color: mediumvioletred;
+        font-weight: bold;
+    }
+    #devices tr:nth-child(even) {
+        background: lightgray;
+    }
     @keyframes highlight {
         0% {
             color: #00f900
@@ -31,17 +43,22 @@
             color: black;
         }
     }
-    .pair-on {
-        background: rgb(255, 153, 153) !important;
-    }
-    .error {
-        color: rgb(255, 15, 15);
-    }
-    #devices tr:nth-child(even) {
-        background: lightgray;
-    }
     .highlight {
         animation: highlight 2s;
+    }
+    @keyframes show-pair-off {
+        0% {
+            color: #F90000
+        }
+        80% {
+            color: red
+        }
+        100% {
+            color: black;
+        }
+    }
+    .show-pair-off {
+        animation: show-pair-off 2s;
     }
 
 
@@ -85,20 +102,22 @@
             "ru": "Таймаут для авто связывания:"
         },
         "re-pair help": {
-            "en": "minutes",
-            "de": "Minuten",
-            "ru": "в минутах"
+            "en": "If similar device appears, it will automatically paired",
+            "de": "Falls gleiches Ger't auftaucht, es wird automatisch verbunden",
+            "ru": "Если похожий прибор появится, то он автоматически привяжется"
         },
         "Brand":                {"en": "Brand",             "de": "Firma",              "ru": "Фирма"},
         "Number":               {"en": "Number",            "de": "Nummer",             "ru": "Номер"},
-        "Auto re-pair (minutes)": {"en": "Auto re-pair (minutes)",      "de": "Auto re-pair (Minuten)",       "ru": "Авто re-pair (в Минутах)"},
+        "Auto re-pair":         {"en": "Auto re-pair",      "de": "Autoverbindung",     "ru": "Авто связывание"},
         "Values":               {"en": "Values",            "de": "Werte",              "ru": "Значения"},
-        "Pair":                 {"en": "Pair",              "de": "Verbinden",          "ru": "Связать"},
+        "Pair":                 {"en": "Pair",              "de": "Verbinden",          "ru": "Привязать"},
         "Are you sure?":        {"en": "Are you sure?",     "de": "Sind Sie sicher?",   "ru": "Вы уверенны?"}
     };
 
     var timeout;
     var channels = {};
+    var checkTimer;
+    var problems = [];
 
     function getComPorts(actualValue) {
         timeout = setTimeout(function () {
@@ -168,10 +187,21 @@
     function showDevice(obj) {
         if (obj._id === 'rflink.' + instance + '.info') return;
         var text = '';
-        text += '<td style="text-align: right; white-space: nowrap;"' +
-                ((obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') ? 'class="error" title="' + _('No address') + '"' : '') + '>'  + obj.native.brand  + '</td>';
+        var _class = '';
+        var title = '';
+        if (obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') {
+            _class += 'no-address ';
+            title += (title ? ', ' : '') + _('No address')
+        }
+        if (obj.native.autoPairProblem) {
+            _class += 'auto-pair-problem ';
+            title += (title ? ', ' : '') + _('More than one device with the same parameters');
+        }
+
+        text += '<td style="text-align: right; white-space: nowrap;" class="' + _class + '" title="' + title + '" >'  + obj.native.brand  + '</td>'
+                ;
         text += '<td style="text-align: center;">' + obj.native.index + '</td>';
-        text += '<td style="text-align: center;"><input class="auto-repair" type="input" data-id="' + obj._id + '" value="' + (obj.native.autoRepair || 0) + '" /></td>';
+        text += '<td style="text-align: center;"><input class="auto-repair" type="checkbox" data-id="' + obj._id + '" ' + (obj.native.autoRepair ? 'checked' : '') + ' /></td>';
 //        if (obj.native.offset !== undefined) {
 //            text += '<td style="text-align: center;"><input class="offset" type="input" data-id="' + obj._id + '" value="' + (obj.native.offset || 0) + '" /></td>';
 //        } else {
@@ -188,7 +218,7 @@
         text += '<td style="text-align: center"><button class="del"  data-id="' + obj._id + '"></button></td>';
 
         if (channels[obj._id]) {
-            $('tr[data-channel="' + obj._id + '"]').html(text);
+            $('tr[data-channel="' + obj._id + '"]').html(text).removeClass('show-pair-off');
         } else {
             text = '<tr class="device" data-channel="' + obj._id + '">' + text + '</tr>';
             $('#devices').append(text);
@@ -220,7 +250,9 @@
             var $this = $(this);
             var id = $this.data('id');
             $this.prop('disabled', true);
-            channels[id].native.autoRepair != channels[id].native.autoRepair;
+
+            channels[id].native.autoRepair = !channels[id].native.autoRepair;
+
             socket.emit('setObject', id, channels[id], function (err) {
                 // button will be re-drawn on change
             });
@@ -230,8 +262,8 @@
             var $this = $(this);
             var id = $this.data('id');
             $this.prop('disabled', true);
-            channels[id].native.offset = parseFloat($this.val());
-            socket.emit('setObject', id, channels[id], function (err) {
+            states[id].native.offset = parseFloat($this.val());
+            socket.emit('setObject', id, states[id], function (err) {
                 // button will be re-drawn on change
             });
         });
@@ -239,8 +271,8 @@
             var $this = $(this);
             var id = $this.data('id');
             $this.prop('disabled', true);
-            channels[id].native.factor = parseFloat($this.val());
-            socket.emit('setObject', id, channels[id], function (err) {
+            states[id].native.factor = parseFloat($this.val());
+            socket.emit('setObject', id, states[id], function (err) {
                 // button will be re-drawn on change
             });
         });
@@ -263,6 +295,10 @@
                 channels[id].native.pair = false;
             }
 
+            if (!channels[id].native.autoRepair && channels[id].native.autoPairProblem !== undefined) {
+                delete channels[id].native.autoPairProblem;
+            }
+
             socket.emit('setObject', id, channels[id], function (err) {
                 // button will be re-drawn on change
             });
@@ -270,6 +306,108 @@
 
         if (obj.native.pair) {
             $pair.addClass('pair-on');
+        }
+        var pos;
+        if ((pos = problems.indexOf(obj._id)) !== -1) {
+            $('tr[data-channel="' + obj._id + '"]').addClass('show-pair-off');
+            problems.splice(pos, 1);
+        }
+    }
+
+    function checkAutoRepairs(callback) {
+        if (checkTimer) clearTimeout(checkTimer);
+
+        checkTimer = setTimeout(function () {
+            _checkAutoRepairs(callback);
+        }, 1000);
+    }
+
+    function _checkAutoRepairs(callback, ids) {
+        if (!ids) {
+            ids = [];
+            for (var id in channels) {
+                if (!channels.hasOwnProperty(id) || !channels[id].native || !channels[id].native.brand) continue;
+                ids.push(id);
+            }
+        }
+        if (!ids.length) {
+            if (callback) callback();
+            return;
+        }
+        var _id = ids.shift();
+        checkAutoRepair(channels[_id], function () {
+            setTimeout(function () {
+                _checkAutoRepairs(callback, ids);
+            }, 0);
+        });
+    }
+
+    function checkAutoRepair(obj, callback) {
+        // autoPairs
+        var pairs      = [];
+        var autoRepair = [];
+
+        for (var __id in channels) {
+            if (!channels.hasOwnProperty(__id) || !channels[__id].native) continue;
+
+            // If device suits to it
+            if (channels[__id].native.brand === obj.native.brand &&
+                channels[__id].native.attrs === obj.native.attrs
+            ) {
+                pairs.push(__id);
+                if (channels[__id].native.autoRepair) autoRepair.push(__id);
+            }
+        }
+
+        if (pairs.length === 1) {
+            if (channels[pairs[0]].native.autoPairProblem) {
+                delete channels[pairs[0]].native.autoPairProblem;
+                // remove autoPairProblem
+                socket.emit('setObject', pairs[0], channels[pairs[0]], function (err) {
+                    // button will be re-drawn on change
+                    if (callback) callback ();
+                });
+            } else if (callback){
+                callback ();
+            }
+        } else if (pairs.length > 1 && autoRepair.length) {
+            // disable autoRepair by all sensors
+            var count = 0;
+            for (var i = 0; i < autoRepair.length; i++) {
+                channels[autoRepair[i]].native.autoRepair = false;
+                if (channels[autoRepair[i]].native.autoPairProblem) delete channels[autoRepair[i]].native.autoPairProblem;
+                var pos = pairs.indexOf(autoRepair[i]);
+                if (pos !== -1) pairs.splice(pos, 1);
+
+                count++;
+                problems.push(autoRepair[i]);
+                $('tr[data-channel="' + autoRepair[i] + '"]').removeClass('show-pair-off');
+                socket.emit('setObject', autoRepair[i], channels[autoRepair[i]], function (err) {
+                    // button will be re-drawn on change
+                    if (!--count && callback) callback();
+                });
+            }
+            for (var j = 0; j < pairs.length; j++) {
+                $('tr[data-channel="' + pairs[j] + '"]').removeClass('show-pair-off');
+                if (channels[pairs[j]].native.autoPairProblem) {
+                    delete channels[autoRepair[i]].native.autoPairProblem;
+                    problems.push(pairs[j]);
+                    count++;
+                    adapter.setForeignObject(pairs[j], channels[pairs[j]], function (err) {
+                        if (err) adapter.log.error('Cannot set object: ' + err);
+                        if (!--count && callback) callback();
+                    });
+                } else {
+                    (function (__id) {
+                        setTimeout(function () {
+                            $('tr[data-channel="' + __id + '"]').addClass('show-pair-off');
+                        }, 100);
+                    })(pairs[j]);
+                }
+            }
+            if (!count && callback) callback();
+        } else if (callback){
+            callback ();
         }
     }
 
@@ -327,13 +465,27 @@
             for (var i = 0; i < res.rows.length; i++) {
                 showDevice(res.rows[i].value);
             }
+            checkAutoRepairs();
         });
 
         socket.on('objectChange', function (id, obj) {
             if (!obj) {
                 $('tr[data-channel="' + id + '"]').remove();
+                if (channels[id]) {
+                    console.log('Device deleted: ' + id);
+                    delete channels[id];
+                    checkAutoRepairs();
+                }
             } else {
-                if (obj.type === 'channel' && id !== 'rflink.' + instance + '.info' && obj.native && obj.native.brand) showDevice(obj);
+                if (obj.type === 'channel' && id !== 'rflink.' + instance + '.info' && obj.native && obj.native.brand) {
+                    if (channels[id]) {
+                        console.log('Device changed: ' + id + ': ' + JSON.stringify(obj.native));
+                    } else {
+                        console.log('New device: ' + id + ': ' + JSON.stringify(obj.native));
+                    }
+                    showDevice(obj);
+                    checkAutoRepairs();
+                }
             }
         });
 
@@ -348,13 +500,14 @@
                 // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
                 var frame = parseString(state.val);
                 if (!frame) return;
-                var _id;
 
-                for (_id in channels) {
+                console.log('Incoming data: ' + JSON.stringify(frame));
+
+                for (var _id in channels) {
                     if (!channels.hasOwnProperty(_id) || !channels[_id].native) continue;
 
                     if (channels[_id].native.brand === frame.brandRaw &&
-                        channels[_id].native.ID === frame.ID &&
+                        channels[_id].native.ID    === frame.ID &&
                         (frame.SWITCH === undefined || (channels[_id].native.switches && channels[_id].native.switches.indexOf(frame.SWITCH) !== -1))
                     ) {
                         delete frame.ID;
@@ -434,7 +587,7 @@
                     <tr class="ui-widget-header">
                         <td style="width: 100px; text-align: center; white-space: nowrap; white-space: nowrap" class="translate">Brand</td>
                         <td style="width: 70px;  text-align: center; white-space: nowrap" class="translate">Number</td>
-                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair (minutes)</td>
+                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair</td>
                         <!--td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Offset</td>
                         <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Factor</td-->
                         <!--td style="width: 50px;  text-align: center" class="translate">ID</td-->
