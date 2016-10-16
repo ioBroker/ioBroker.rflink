@@ -18,6 +18,7 @@
     "platform":   "Javascript/Node.js",
     "mode":       "daemon",
     "icon":       "rflink.png",
+    "license":    "MIT",
     "enabled":    true,
     "messagebox": true,
     "extIcon":    "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
