@@ -67,7 +67,9 @@ adapter.on('stateChange', function (id, state) {
 
     if (id === adapter.namespace + '.inclusionOn') {
         setInclusionState(state.val);
-        adapter.setForeignState(id, state.val, true);
+        setTimeout(function (val) {
+            adapter.setState('inclusionOn', val, true);
+        }, 200, state.val);
     } else
     // output to rflink
     if (states[id] && states[id].common.write) {
