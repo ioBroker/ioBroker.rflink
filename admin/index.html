@@ -93,6 +93,11 @@
             "de": "Anlernen-Modus ist aktiv",
             "ru": "Режим присваивания адресов активирован"
         },
+        "Inclusion mode is inactive": {
+            "en": "Inclusion mode is inactive",
+            "de": "Anlernen-Modus ist nicht mehr aktiv",
+            "ru": "Режим присваивания адресов деактивирован"
+        },
         "Ok":                   {"en": "Ok",                "de": "Ok",                 "ru": "Ok"},
         "Options":              {"en": "Options",           "de": "Einstellungen",      "ru": "Настройки"},
         "Devices":              {"en": "Devices",           "de": "Geräte",             "ru": "Устройства"},
@@ -108,7 +113,7 @@
         },
         "Brand":                {"en": "Brand",             "de": "Firma",              "ru": "Фирма"},
         "Number":               {"en": "Number",            "de": "Nummer",             "ru": "Номер"},
-        "Auto re-pair":         {"en": "Auto re-pair",      "de": "Autoverbindung",     "ru": "Авто связывание"},
+        "Auto re-pair":         {"en": "Auto re-pairing",   "de": "Autoverbindung",     "ru": "Авто связывание"},
         "Values":               {"en": "Values",            "de": "Werte",              "ru": "Значения"},
         "Pair":                 {"en": "Pair",              "de": "Verbinden",          "ru": "Привязать"},
         "Are you sure?":        {"en": "Are you sure?",     "de": "Sind Sie sicher?",   "ru": "Вы уверенны?"}
@@ -116,8 +121,11 @@
 
     var timeout;
     var channels = {};
+    var states   = {};
     var checkTimer;
     var problems = [];
+    var values   = {};
+    var timers   = [];
 
     function getComPorts(actualValue) {
         timeout = setTimeout(function () {
@@ -184,11 +192,28 @@
         });
     }
 
+    function getIntervalAsText(id, ts) {
+        var minutes = ts ? Math.floor((new Date().getTime() - ts) / 60000) : 0;
+        if (minutes) {
+            return _('for <b>%s</b> minutes', minutes);
+        } else {
+            return _('just <b>now</b>');
+        }
+    }
+
+    function updateIntervals() {
+        $('.last-value').each(function () {
+            var id = $(this).data('id');
+            $(this).html(getIntervalAsText(id, values[id].ts));
+        });
+    }
+
     function showDevice(obj) {
         if (obj._id === 'rflink.' + instance + '.info') return;
-        var text = '';
+
+        var text   = '';
         var _class = '';
-        var title = '';
+        var title  = '';
         if (obj.native.ID === null || obj.native.ID === undefined || obj.native.ID === '') {
             _class += 'no-address ';
             title += (title ? ', ' : '') + _('No address')
@@ -198,7 +223,7 @@
             title += (title ? ', ' : '') + _('More than one device with the same parameters');
         }
 
-        text += '<td style="text-align: right; white-space: nowrap;" class="' + _class + '" title="' + title + '" >'  + obj.native.brand  + '</td>'
+        text += '<td style="text-align: right; white-space: nowrap;" class="' + _class + '" title="' + title + '">'  + obj.native.brand  + '</td>'
                 ;
         text += '<td style="text-align: center;">' + obj.native.index + '</td>';
         text += '<td style="text-align: center;"><input class="auto-repair" type="checkbox" data-id="' + obj._id + '" ' + (obj.native.autoRepair ? 'checked' : '') + ' /></td>';
@@ -213,7 +238,7 @@
 //            text += '<td></td>';
 //        }
         //text += '<td style="text-align: right;">'  + obj.native.ID    + '</td>';
-        text += '<td style="text-align: left;"   class="raw-value"   data-id="' + obj._id + '"></td>';
+        text += '<td style="text-align: left;"   class="raw-value"   data-id="' + obj._id + '">' + showValue(obj._id) + '</td>';
         text += '<td style="text-align: center"><button class="pair" data-id="' + obj._id + '"></button></td>';
         text += '<td style="text-align: center"><button class="del"  data-id="' + obj._id + '"></button></td>';
 
@@ -312,6 +337,28 @@
             $('tr[data-channel="' + obj._id + '"]').addClass('show-pair-off');
             problems.splice(pos, 1);
         }
+
+    }
+
+    function showValue(channelId) {
+        // build last value
+        var ids = [];
+        var namespace = channelId + '.';
+        var len = namespace.length;
+        for (var id in values) {
+            if (id.substring(0, len) === namespace) ids.push(id);
+        }
+        var value;
+        if (ids.length) {
+            ids.sort();
+
+            value = '<span class="last-value" data-id="' + id + '">' + getIntervalAsText(ids[0], values[ids[0]].ts) + '</span>';
+            // build values string
+            for (var j = 0; j < ids.length; j++) {
+                value += (value ? ', ' : '') + '<b>' + states[ids[j]].native.attr + '</b>: ' + values[ids[j]].val;
+            }
+        }
+        return value;
     }
 
     function checkAutoRepairs(callback) {
@@ -437,7 +484,7 @@
                             ack: false
                         }, function (err) {
                             if (!err) {
-                                showMessage(_('Inclusion mode is active'));
+                                showMessage(state.val ? _('Inclusion mode is active') : _('Inclusion mode is inactive'));
                             } else {
                                 showError(err);
                             }
@@ -456,16 +503,36 @@
         });
 
         socket.emit('getObjectView', 'system', 'channel', {startkey: 'rflink.' + instance + '.', endkey: 'rflink.' + instance + '.\u9999', include_docs: true}, function (err, res) {
-            res.rows.sort(function (a, b) {
-                if (a.value.native.brand > b.value.native.brand) return 1;
-                if (a.value.native.brand < b.value.native.brand) return -1;
-                return 0;
-            });
+            socket.emit('getObjectView', 'system', 'state', {startkey: 'rflink.' + instance + '.', endkey: 'rflink.' + instance + '.\u9999', include_docs: true}, function (err, _states) {
+                socket.emit('getStates', function (err, _values) {
+                    var namespace = 'rflink.' + instance + '.';
+                    var len = namespace.length;
+                    for (var id in _values) {
+                        if (id.substring(0, len) === namespace) {
+                            values[id] = _values[id];
+                        }
+                    }
+                    if (_states && _states.rows && _states.rows.length) {
+                        for (var j = 0; j < _states.rows.length; j++) {
+                            states[_states.rows[j].id] = _states.rows[j].value;
+                        }
+                    }
 
-            for (var i = 0; i < res.rows.length; i++) {
-                showDevice(res.rows[i].value);
-            }
-            checkAutoRepairs();
+
+
+                    res.rows.sort(function (a, b) {
+                        if (a.value.native.brand > b.value.native.brand) return 1;
+                        if (a.value.native.brand < b.value.native.brand) return -1;
+                        return 0;
+                    });
+
+                    for (var i = 0; i < res.rows.length; i++) {
+                        showDevice(res.rows[i].value);
+                    }
+                    checkAutoRepairs();
+                    setInterval(updateIntervals, 10000);
+                });
+            });
         });
 
         socket.on('objectChange', function (id, obj) {
@@ -475,9 +542,12 @@
                     console.log('Device deleted: ' + id);
                     delete channels[id];
                     checkAutoRepairs();
+                } else if (states[id]) {
+                    console.log('State deleted: ' + id);
+                    delete states[id];
                 }
             } else {
-                if (obj.type === 'channel' && id !== 'rflink.' + instance + '.info' && obj.native && obj.native.brand) {
+                if (obj.type === 'channel' && obj.native && obj.native.brand) {
                     if (channels[id]) {
                         console.log('Device changed: ' + id + ': ' + JSON.stringify(obj.native));
                     } else {
@@ -485,6 +555,13 @@
                     }
                     showDevice(obj);
                     checkAutoRepairs();
+                } else if (obj.type === 'state' && obj.native && obj.native.brand) {
+                    if (states[id]) {
+                        console.log('State changed: ' + id + ': ' + JSON.stringify(obj.native));
+                    } else {
+                        console.log('New State: ' + id + ': ' + JSON.stringify(obj.native));
+                    }
+                    states[id] = obj;
                 }
             }
         });
@@ -492,13 +569,13 @@
         socket.on('stateChange', function (id, state) {
             if (id === 'rflink.' + instance + '.inclusionOn') {
                 $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
-            } else {
+            } else if (id === 'rflink.' + instance + '.rawData'){
                 // analyse rawData
                 if (!state || !state.val || !state.ack || typeof state.val !== 'string') return;
 
                 // received something like:
                 // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
-                var frame = parseString(state.val);
+                /*var frame = parseString(state.val);
                 if (!frame) return;
 
                 console.log('Incoming data: ' + JSON.stringify(frame));
@@ -514,16 +591,31 @@
                         delete frame.brand;
                         delete frame.brandRaw;
 
-                        $('.raw-value[data-id="' + _id + '"]').html('<span class="highlight">' + stringifyFrame(frame) + '</span>');
+                        var text = getIntervalAsText(_id) + ', ';
+                        text += '<span class="highlight">' + stringifyFrame(frame) + '</span>';
+                        $('.raw-value[data-id="' + _id + '"]').html(text);
                         return;
                     }
                 }
+
+                */
+            } else {
+                values[id] = state;
+                var pos = id.lastIndexOf('.');
+                id = id.substring(0, pos - 1);
+                if (timers[id]) clearTimeout(timers[id]);
+
+                (function (_id) {
+                    timers[_id] = setTimeout(function () {
+                        timers[_id] = null;
+                        $('.raw-value[data-id="' + _id + '"]').html(showValue(_id));
+                    }, 200);
+                })(id);
             }
         });
 
         socket.emit('subscribeObjects', 'rflink.' + instance + '.*');
-        socket.emit('subscribeStates',  'rflink.' + instance + '.rawData');
-        socket.emit('subscribeStates',  'rflink.' + instance + '.inclusionOn');
+        socket.emit('subscribeStates',  'rflink.' + instance + '.*');
         onChange(false);
     }
 
@@ -539,6 +631,7 @@
         });
         callback(obj);
     }
+
 </script>
 <style type="text/css">
     .tab1 {

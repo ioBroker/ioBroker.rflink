@@ -250,7 +250,7 @@ function addNewDevice(frame, attrs, callback) {
                                 if (typeof frame[obj.native.attr] === 'number' && obj.native.factor) {
                                     frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
                                 }
-                                adapter.setState('rawData', frame.dataRaw, true);
+                                //adapter.setState('rawData', frame.dataRaw, true);
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });
@@ -286,7 +286,7 @@ function addNewDevice(frame, attrs, callback) {
                                     frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
                                 }
 
-                                adapter.setState('rawData', frame.dataRaw, true);
+                                //adapter.setState('rawData', frame.dataRaw, true);
                                 adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
                                     insertObjs(_objs);
                                 });

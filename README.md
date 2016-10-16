@@ -21,6 +21,28 @@ sudo apt-get install build-essential
 sudo apt-get install python2.7
 ```
 
+## Usage
+To enable the learning of sensors you must activate "Inclusion mode". The inclusion mode by default will be enabled for 5 minutes (300000 ms) and after 5 minutes will be disabled automatically.
+
+To enable inclusion mode forever, just set "Inclusion timeout" to 0.
+
+## Pair
+The devices get the new address every time the battery changed. 
+
+So after the battery changed it must be learned anew. 
+
+To do that press the pair button just before inserting the battery and the device will be learned with new address. 
+
+## Auto pairing
+If you have not so many sensors in the near you can activate auto re-pairing. 
+
+It is possible only if the device can be definitely identified.
+
+That means that only one device with this brand and type is present. (E.g. only one temperature sensor from one brand)
+
+If system detect more than one device with such a parameter it will automatically deactivate the auto re-pairing mode and indicate problem sensors with flash.
+
+
 ## Changelog
 ### 0.1.0 (2016-10-14)
 * (bluefox) initial commit
