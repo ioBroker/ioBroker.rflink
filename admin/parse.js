@@ -273,6 +273,7 @@ function parseString(rawData) {
     for (var i = 1; i < parts.length; i++) {
         if (!parts[i].trim()) continue;
         var pp = parts[i].split('=');
+        if (pp.length < 2) continue;
         frame[pp[0]] = decodeValue(pp[0], pp[pp.length - 1]);
         if (pp[0] === 'CMD') {
             if (pp[1] === 'UP'    || pp[1] === 'DOWN')   frame.blind = true;
