@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "rflink",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
-      "0.1.0": {
+      "0.1.1": {
         "en": "initial commit",
         "de": "Erste Version",
         "ru": "Первая версия"
@@ -70,8 +70,7 @@
         "desc":  "If inclusion mode on or off",
         "type":  "boolean",
         "read":  true,
-        "write": true,
-        "def":   false
+        "write": true
       },
       "native": {}
     },

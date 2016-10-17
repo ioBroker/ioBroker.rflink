@@ -503,8 +503,6 @@
         getIsAdapterAlive(function (isAlive) {
             if (isAlive || common.enabled) {
                 getComPorts(settings.comName);
-            } else {
-                $('#getUnit').prop('disabled', true);
             }
         });
 
@@ -624,6 +622,25 @@
 
         socket.emit('subscribeObjects', 'rflink.' + instance + '.*');
         socket.emit('subscribeStates',  'rflink.' + instance + '.*');
+
+        $('#comName').change(function () {
+            socket.emit('getState', adapter + '.' + instance + '.inclusionOn', function (err, state) {
+                if (!state || !state.val) {
+                    $('#enableInclusion').button('option', 'label', _('Disable inclusion mode'));
+
+                    socket.emit('setState', adapter + '.' + instance + '.inclusionOn', {
+                        val: true,
+                        ack: false
+                    }, function (err) {
+                        if (!err) {
+                            showMessage(state.val ? _('Inclusion mode is active') : _('Inclusion mode is inactive'));
+                        } else {
+                            showError(err);
+                        }
+                    });
+                }
+            });
+        });
         onChange(false);
     }
 

@@ -44,6 +44,6 @@ If system detect more than one device with such a parameter it will automaticall
 
 
 ## Changelog
-### 0.1.0 (2016-10-14)
+### 0.1.1 (2016-10-17)
 * (bluefox) initial commit
 
