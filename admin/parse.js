@@ -438,7 +438,7 @@ function analyseFrame(frame, newId, index) {
         } else if (types[attr]) {
             obj = {
                 _id:    newId + '.' + attr,
-                common: types[attr],
+                common: JSON.parse(JSON.stringify(types[attr])),
                 native: JSON.parse(JSON.stringify(native)),
                 type:   'state'
             };
