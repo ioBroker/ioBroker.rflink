@@ -18,6 +18,7 @@ var frameID      = 1;
 var lastReceived = {};
 var repairInterval = null;
 var comm;
+var skipFirst    = true;
 
 adapter.on('message', function (obj) {
     if (obj) {
@@ -489,20 +490,20 @@ function processFrame(frame, isAdd, callback) {
 
 // deactivated
 /*
-function checkAutoRepair() {
-    var now = new Date().getTime();
-    for (var id in channels) {
-        if (!lastReceived[id]) return;
-        if (!channels.hasOwnProperty(id)) continue;
+ function checkAutoRepair() {
+ var now = new Date().getTime();
+ for (var id in channels) {
+ if (!lastReceived[id]) return;
+ if (!channels.hasOwnProperty(id)) continue;
 
-        if (now - lastReceived[id] > channels[id].native.autoRepair * 60000) {
-            channels[id].native.autoPair = true;
-            adapter.log.debug('Enable auto re-pair for "' + id + '" because no data from minimum ' + channels[id].native.autoRepair + ' minutes');
-            adapter.setForeignObject(id, channels[id]);
-        }
-    }
-}
-*/
+ if (now - lastReceived[id] > channels[id].native.autoRepair * 60000) {
+ channels[id].native.autoPair = true;
+ adapter.log.debug('Enable auto re-pair for "' + id + '" because no data from minimum ' + channels[id].native.autoRepair + ' minutes');
+ adapter.setForeignObject(id, channels[id]);
+ }
+ }
+ }
+ */
 function main() {
     adapter.config.inclusionTimeout = parseInt(adapter.config.inclusionTimeout, 10) || 0;
 
@@ -534,16 +535,22 @@ function main() {
 
             comm = new Serial(adapter.config, adapter.log, function (err) {
                 // done
-                if (err) adapter.log.error('Cannot open port: ' + err);
+                if (err) {
+                    adapter.log.error('Cannot open port: ' + err);
+                } else {
+                    comm.write('10;REBOOT;');
+                }
             });
             comm.on('connectionChange', function (connected) {
+                if (!connected) skipFirst = true;
                 adapter.setState('info.connection', connected, true);
             });
             comm.on('data', function (data) {
                 var frame = Parses.parseString(data);
-                if (frame) {
+                if (frame && !skipFirst) {
                     processFrame(frame);
                 } else {
+                    if (skipFirst) skipFirst = false;
                     adapter.log.debug('Skip frame: ' + data);
                 }
             });
