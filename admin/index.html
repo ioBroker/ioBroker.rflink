@@ -197,6 +197,7 @@
 
     function getIntervalAsText(ts) {
         var minutes = ts ? Math.floor((new Date().getTime() - ts) / 60000) : 0;
+        if (minutes < 0) minutes = 0;
         if (minutes === 1) {
             return _('for one minute');
         } else
