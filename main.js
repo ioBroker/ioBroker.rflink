@@ -109,34 +109,34 @@ var presentationDone = false;
 
 function writeCommand(id, value, callback) {
     var command = '10;' + states[id].native.brand + ';' + Parses.encodeValue('ID', states[id].native.ID) + ';';
-    if (states[id].native.switch !== undefined) command += 'SWITCH=' + states[id].native.switch + ';';
+    if (states[id].native.switch !== undefined) command += states[id].native.switch + ';';
     if (states[id].native.blind) {
         if (value === 'true' || value === true || value === '1' || value === 1) {
             value = 'UP';
         } else {
             value = 'DOWN';
         }
-        command += 'CMD=' + value + ';';
+        command += value + ';';
     } else if (states[id].native.all) {
         if (value === 'true' || value === true || value === '1' || value === 1) {
             value = 'ALLON';
         } else {
             value = 'ALLOFF';
         }
-        command += 'CMD=' + value + ';';
+        command += value + ';';
     } else if (states[id].native.set_level) {
-        command += 'CMD=SET_LEVEL=' + value + ';';
+        command += 'SET_LEVEL=' + value + ';';
     } else if (states[id].native.switch !== undefined) {
         if (value === 'true' || value === true || value === '1' || value === 1) {
             value = 'ON';
         } else {
             value = 'OFF';
         }
-        command += 'CMD=' + value + ';';
+        command += value + ';';
     } else if (states[id].native.attr === 'RGBW') {
-        command += 'CMD=ON;' + states[id].native.attr + '=' + value + ';';
+        command +=  states[id].native.attr + '=' + value + ';';
     } else if (states[id].native.attr === 'CHIME') {
-        command += 'CMD=ON;' + states[id].native.attr + '=' + value + ';';
+        command += states[id].native.attr + '=' + value + ';';
     } else {
         command += states[id].native.attr + '=' + value + ';';
     }
