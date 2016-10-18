@@ -195,7 +195,7 @@
         });
     }
 
-    function getIntervalAsText(id, ts) {
+    function getIntervalAsText(ts) {
         var minutes = ts ? Math.floor((new Date().getTime() - ts) / 60000) : 0;
         if (minutes === 1) {
             return _('for one minute');
@@ -210,7 +210,7 @@
     function updateIntervals() {
         $('.last-value').each(function () {
             var id = $(this).data('id');
-            $(this).html(getIntervalAsText(id, values[id].ts));
+            $(this).html(getIntervalAsText(values[id].ts));
         });
     }
 
@@ -358,7 +358,7 @@
         if (ids.length) {
             ids.sort();
 
-            value = '<span class="last-value" data-id="' + id + '">' + getIntervalAsText(ids[0], values[ids[0]].ts) + '</span>';
+            value = '<span class="last-value" data-id="' + ids[0] + '">' + getIntervalAsText(values[ids[0]].ts) + '</span>';
             // build values string
             for (var j = 0; j < ids.length; j++) {
                 value += (value ? ', ' : '') + '<b>' + states[ids[j]].native.attr + '</b>: ' + values[ids[j]].val;

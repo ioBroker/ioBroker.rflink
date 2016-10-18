@@ -162,6 +162,7 @@ function setInclusionState(val) {
     }
 }
 
+//20;12;Cresta;ID=4D02;TEMP=00c9;HUM=57;BAT=OK;
 function addNewDevice(frame, attrs, callback) {
     var channelObj;
 
@@ -241,11 +242,10 @@ function addNewDevice(frame, attrs, callback) {
             callback && callback();
         } else {
             var obj = _objs.pop();
-            adapter.log.info('Add ' + obj._id);
             adapter.getForeignObject(obj._id, function (err, oldObj) {
                 if (!oldObj) {
                     setTimeout(function () {
-
+                        adapter.log.info('Add ' + obj._id);
                         adapter.setForeignObject(obj._id, obj, function () {
                             if (frame[obj.native.attr] !== undefined) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
@@ -263,6 +263,7 @@ function addNewDevice(frame, attrs, callback) {
                         });
                     }, 50);
                 } else {
+                    adapter.log.info('Update ' + obj._id);
                     // merge switches
                     if (oldObj.native.switches) {
                         if (!obj.native.switches) {
@@ -485,6 +486,8 @@ function processFrame(frame, isAdd, callback) {
         } else {
             addNewDevice(frame, attrs, callback);
         }
+    } else {
+        adapter.log.debug('Device "' + frame.brandRaw + ' not included, because inclusion mode disabled');
     }
 }
 

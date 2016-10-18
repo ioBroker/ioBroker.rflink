@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "rflink",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "news": {
+      "0.1.4": {
+        "en": "Fix the last changed time indication",
+        "de": "Korrigiere die Anzeige für letzte Änderung",
+        "ru": "Исправлено обновление времени последнего изменения"
+      },
       "0.1.3": {
         "en": "initial commit",
         "de": "Erste Version",
