@@ -44,6 +44,9 @@ If system detect more than one device with such a parameter it will automaticall
 
 
 ## Changelog
+### 0.2.0 (2016-10-18)
+* (bluefox) Fix write of commands
+
 ### 0.1.4 (2016-10-18)
 * (bluefox) Fix the last changed time indication
 

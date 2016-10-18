@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "rflink",
-    "version": "0.1.4",
+    "version": "0.2.0",
     "news": {
+      "0.2.0": {
+        "en": "Fix write of commands",
+        "de": "Korrigiere die Steuerung",
+        "ru": "Исправлена посылка команд приборам"
+      },
       "0.1.4": {
         "en": "Fix the last changed time indication",
         "de": "Korrigiere die Anzeige für letzte Änderung",

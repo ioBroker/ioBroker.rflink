@@ -14,7 +14,6 @@ var states       = {};
 var inclusionOn  = false;
 var inclusionTimeout = false;
 var addQueue     = [];
-var frameID      = 1;
 var lastReceived = {};
 var repairInterval = null;
 var comm;
@@ -109,8 +108,8 @@ adapter.on('ready', function () {
 var presentationDone = false;
 
 function writeCommand(id, value, callback) {
-    var command = '10;' + (frameID++) + ';' + states[id].native.brand + ';' + Parses.encodeValue('ID', states[id].native.ID) + ';';
-    if (states[id].native.switch !== undefined) command += 'SWITCH=' + states[id].native.switch + ';'
+    var command = '10;' + states[id].native.brand + ';' + Parses.encodeValue('ID', states[id].native.ID) + ';';
+    if (states[id].native.switch !== undefined) command += 'SWITCH=' + states[id].native.switch + ';';
     if (states[id].native.blind) {
         if (value === 'true' || value === true || value === '1' || value === 1) {
             value = 'UP';
@@ -330,7 +329,7 @@ function processFrame(frame, isAdd, callback) {
             // remove pair flag
             if (channels[id].native.pair) {
                 channels[id].native.pair = false;
-                if (channels[__id].native.autoPairProblem !== undefined) delete channels[__id].native.autoPairProblem;
+                if (channels[id].native.autoPairProblem !== undefined) delete channels[id].native.autoPairProblem;
                 adapter.log.debug('Disable pair for "' + id);
                 adapter.setForeignObject(id, channels[id]);
             }
