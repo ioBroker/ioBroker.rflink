@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "rflink",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "news": {
+      "0.2.1": {
+        "en": "Fix for SET_LEVEL",
+        "de": "Korrigiere SET_LEVEL Steuerung",
+        "ru": "Исправлена команда SET_LEVEL"
+      },
       "0.2.0": {
         "en": "Fix write of commands",
         "de": "Korrigiere die Steuerung",

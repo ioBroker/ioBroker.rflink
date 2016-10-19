@@ -17,18 +17,13 @@ var decoders = {
         var result;
         result = Math.round(parseInt(value) * 99 / 15) + 1;
         result = Math.max(1, Math.min(100, result));
-        result = parseFloat(result);
-        if (isNaN(result)) {
-            result = 0;
-        }
+        result = parseFloat(result) || 0;
         return result;
     },
     TEMP: function(value) {
         var result;
         result = parseInt(value, 16);
-        if (result >= 32768) {
-            result = 32768 - result;
-        }
+        if (result >= 32768) result = 32768 - result;
         return result / 10;
     },
     HUM: function(value) {
@@ -368,7 +363,7 @@ function analyseFrame(frame, newId, index) {
             obj.native.all    = true;
             obj.native.switch = frame.SWITCH;
             objs.push(obj);
-        } else if (attr === 'CMD' && frame.set_level && frame.SWITCH !== undefined) {
+        } else if (attr === 'CMD' && frame.set_level) {
             //switch
             obj = {
                 _id:       newId + '.SET_LEVEL_' + frame.SWITCH.toString(),
@@ -376,6 +371,8 @@ function analyseFrame(frame, newId, index) {
                     name:  frame.brandRaw + ' ' + index + ' Set level ' + frame.SWITCH.toString(),
                     type:  'number',
                     role:  'level.dimmer',
+                    min:   0,
+                    max:   100,
                     read:  true,
                     write: true
                 },

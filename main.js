@@ -125,7 +125,7 @@ function writeCommand(id, value, callback) {
         }
         command += value + ';';
     } else if (states[id].native.set_level) {
-        command += 'SET_LEVEL=' + value + ';';
+        command += Math.max(1, Math.min(100, (value - 1) / 99 * 15)) + ';';
     } else if (states[id].native.switch !== undefined) {
         if (value === 'true' || value === true || value === '1' || value === 1) {
             value = 'ON';
