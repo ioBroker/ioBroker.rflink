@@ -60,7 +60,27 @@
     .show-pair-off {
         animation: show-pair-off 2s;
     }
-
+    #drop-zone {
+        width: calc(100% - 10px);
+        height: calc(100% - 10px);
+        position: absolute;
+        opacity: 0.8;
+        top: 0;
+        left: 0;
+        background: #eee;
+        -webkit-border-radius: 15px;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+        z-index: 1;
+        font-size: 32px;
+        font-weight: bold;
+        text-align: center;
+        border: 5px dashed darkgray;
+    }
+    .dropZone-error {
+        background: #faa !important;
+        color: #f00;
+    }
 
 </style>
 <script type="text/javascript">
@@ -119,15 +139,32 @@
         "Are you sure?":        {"en": "Are you sure?",     "de": "Sind Sie sicher?",   "ru": "Вы уверенны?"},
         "for one minute":       {"en": "for one minute",    "de": "vor eine Minute",    "ru": "одну минуту назад"},
         "for <b>%s</b> minutes": {"en": "for <b>%s</b> minutes", "de": "vor <b>%s</b> Minuten", "ru": "<b>%s</b> мин. назад"},
-        "just <b>now</b>":      {"en": "just <b>now</b>",   "de": "gerade <b>jetzt</b>", "ru": "<b>только</b> что"}
+        "just <b>now</b>":      {"en": "just <b>now</b>",   "de": "gerade <b>jetzt</b>", "ru": "<b>только</b> что"},
+        "Flash Arduino":        {"en": "Flash Arduino",     "de": "Arduino flashen", "ru": "Запись на Arduino"},
+        "Upload sketch HEX File for RFLink: ": {
+            "en": "Upload sketch HEX File for RFLink: ",
+            "de": "Sketch-HEX-Datei für RFLink laden: ",
+            "ru": "Загрузить HEX файл для RFLink: "
+        },
+        "not-started":          {
+            "en": "Adapter is not started. Flash is not possible",
+            "de": "Adapter ist nicht gestartet. Flashen ist nich möglich",
+            "ru": "Драйвер не запущен. Запись невозможна"
+        },
+        "download-help": {
+            "en": 'You can find it <a href="http://www.nemcon.nl/blog2/download" target="_blank">here</a>. You need <i>RFLink.cpp.hex</i> file.',
+            "de": 'Die Dateien kann man <a href="http://www.nemcon.nl/blog2/download" target="_blank">hier</a> finden. Man braucht die Datei mit Namen <i>RFLink.cpp.hex</i>.',
+            "ru": 'Файлы можно найти <a href="http://www.nemcon.nl/blog2/download" target="_blank">здесь</a>. Нужен файл с именем <i>RFLink.cpp.hex</i>.'
+        },
+        "Flash default sketch": {"en": "Flash default sketch", "de": "Default Sketch schreiben", "ru": "Записать дефолтный скетч"}
     };
 
     var timeout;
+    var checkTimer;
     var channels = {};
     var states   = {};
-    var checkTimer;
-    var problems = [];
     var values   = {};
+    var problems = [];
     var timers   = [];
 
     function getComPorts(actualValue) {
@@ -465,6 +502,79 @@
         }
     }
 
+    function fileHandler(event) {
+        event.preventDefault();
+        var file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
+        var $dz = $('#drop-zone');
+        if (file.size > 10000000) {
+            $('#drop-text').html(_('File is too big!'));
+            $dz.addClass('dropZone-error').animate({opacity: 0}, 1000, function () {
+                $dz.hide().removeClass('dropZone-error').css({opacity: 1});
+                showMessage(_('File is too big!'));
+                $('#drop-text').html(_('Drop the files here'));
+            });
+            $('#flashFile').replaceWith($('#flashFile').clone(true));
+            return false;
+        }
+        if (file.name.toLowerCase().split('.').pop() !== 'hex') {
+            $('#drop-text').html(_('Invalid file extension! Only *.hex are allowed.'));
+            $dz.addClass('dropZone-error').animate({opacity: 0}, 1000, function () {
+                $dz.hide().removeClass('dropZone-error').css({opacity: 1});
+                showMessage(_('Invalid file extension! Only *.hex are allowed.'));
+                $('#drop-text').html(_('Drop the files here'));
+            });
+            $('#flashFile').replaceWith($('#flashFile').clone(true));
+            return false;
+        }
+        $dz.show();
+        $('#flash_default').prop('disabled', true);
+        $('#flashFile').prop('disabled', true);
+        $('#drop-text').hide();
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+            var text;
+            try {
+                text = evt.target.result.split(',')[1]; // string has form data:;base64,TEXT==
+            } catch(err) {
+                $('#flash_default').prop('disabled', false);
+                $('#flashFile').prop('disabled', false);
+                $('#drop-text').html(_('Cannot read file!'));
+                $dz.addClass('dropZone-error').animate({opacity: 0}, 1000, function () {
+                    $dz.hide().removeClass('dropZone-error').css({opacity: 1});
+                    main.showError(_('Cannot read file!'));
+                    $('#drop-text').html(_('Drop the files here'));
+                });
+                return;
+            }
+
+            sendTo(null, 'flash', {hex: text}, function (result) {
+                if (result.error) {
+                    showMessage(_('Cannot flash: ') + (result.error.message || result.error), _('Flash error'));
+                } else {
+                    showMessage(_('File was successfully flashed'), _('Success'));
+                }
+                $('#flash_default').prop('disabled', false);
+                $('#flashFile').prop('disabled', false);
+                $('#drop-text').html(_('Drop the files here'));
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function defaultFlash() {
+        $('#flash_default').prop('disabled', true);
+        $('#flashFile').prop('disabled', true);
+        sendTo(null, 'flash', null, function (result) {
+            if (result.error) {
+                showMessage(_('Cannot flash: ') + (result.error.message || result.error), _('Flash error'));
+            } else {
+                showMessage(_('File was successfully flashed'), _('Success'));
+            }
+            $('#flash_default').prop('disabled', false);
+            $('#flashFile').prop('disabled', false);
+        });
+    }
+
     function load(settings, onChange) {
         if (!settings) return;
         for (var key in settings) {
@@ -473,7 +583,15 @@
 
         $('#enableInclusion').button().hide();
 
-        $('#tabs').show().tabs();
+        $('#tabs').show().tabs({
+            activate:  function (event, ui) {
+                if (ui.newPanel.attr('id') === 'tabs-3') {
+                    $('#drop-zone').show().css({opacity: 1}).animate({opacity: 0}, 2000, function () {
+                        $('#drop-zone').hide().css({opacity: 1});
+                    });
+                }
+            }
+        });
 
         setTimeout(function () {
             socket.emit('getState', adapter + '.' + instance + '.inclusionOn', function (err, state) {
@@ -501,9 +619,43 @@
             });
         }, 1000);
 
+        $('#flash_default').button().click(defaultFlash);
+
         getIsAdapterAlive(function (isAlive) {
+
             if (isAlive || common.enabled) {
+                $('#not-started').hide();
+                $('#flash_default').prop('disabled', false);
                 getComPorts(settings.comName);
+
+                var $dropZone = $('#tabs-3');
+                if (typeof(window.FileReader) !== 'undefined' && !$dropZone.data('installed')) {
+                    $dropZone.data('installed', true);
+                    var $dz = $('#drop-zone');
+                    $('#drop-text').html(_('Drop the files here'));
+                    $dropZone[0].ondragover = function() {
+                        $dz.unbind('click');
+                        $dz.show();
+                        return false;
+                    };
+                    $dz.click(function () {
+                        $dz.hide();
+                    });
+
+                    $dz[0].ondragleave = function() {
+                        $dz.hide();
+                        return false;
+                    };
+
+                    $dz[0].ondrop = fileHandler;
+                }
+                $('#flashFile').change(fileHandler);
+
+
+            } else {
+                $('#flashFile').prop('disabled', true);
+                $('#flash_default').prop('disabled', true);
+                $('#not-started').show();
             }
         });
 
@@ -642,6 +794,7 @@
                 }
             });
         });
+
         onChange(false);
     }
 
@@ -674,6 +827,7 @@
             <ul>
                 <li><a href="#tabs-1" class="translate">Options</a></li>
                 <li><a href="#tabs-2" class="translate">Devices</a></li>
+                <li><a href="#tabs-3" class="translate">Flash Arduino</a></li>
             </ul>
             <div id="tabs-1">
                 <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
@@ -694,10 +848,30 @@
                         <option value="57600">57600</option>
                         <option value="115200">115200</option>
                     </select></td><td></td></tr>
+                    <tr class="serial"><td><label for="board" class="translate">Board type:</label></td><td>
+                            <select class="value" id="board">
+                                <option value="uno">Arduino Uno</option>
+                                <option value="mega">Arduino Mega</option>
+                                <option value="leonardo">Arduino Leonardo</option>
+                                <option value="micro">Arduino Micro</option>
+                                <option value="nano">Arduino Nano</option>
+                                <option value="duemilanove168">Arduino Duemilanove</option>
+                                <option value="blend-micro">RedBearLab Blend Micro</option>
+                                <option value="tinyduino">Tiny Circuits Tinyduino</option>
+                                <option value="sf-pro-micro">SparkFun Pro Micro</option>
+                                <option value="qduino">Qtechknow Qduino</option>
+                                <option value="pinoccio">Pinoccio Scout</option>
+                                <option value="imuduino">Femtoduino IMUduino</option>
+                                <option value="feather">Adafruit Feather 32u4 Basic Proto</option>
+                                <option value="arduboy">Arduboy</option>
+                            </select>
+                        </td>
+                        <td></td>
+                    </tr>
                     <tr><td><label for="connTimeout" class="translate">Connection timeout:</label></td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
                     <tr><td><label for="inclusionTimeout" class="translate">Inclusion mode timeout:</label></td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
                     <!--tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair:</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">re-pair help</span></td></tr-->
-                    <tr><td></td><td><button id="enableInclusion" class="translateB">Enable inclusion mode</button></td><td><div id="inclusionState"></div></td></tr>
+                    <tr><td></td><td colspan="2"><button id="enableInclusion" class="translateB">Enable inclusion mode</button><div id="inclusionState"></div></td></tr>
                 </table>
             </div>
             <div id="tabs-2" style="width: 100%; height: calc(100% - 40px); overflow-x: hidden; overflow-y: auto; padding: 0">
@@ -719,6 +893,19 @@
 
                     </tbody>
                 </table>
+            </div>
+            <div id="tabs-3" style="width: 100%; height: 100%;display: none">
+                <div id="drop-zone">
+                    <div style="padding-top: 15%" class="translate" id="drop-text">Drop the files here</div>
+                </div>
+                <p class="translate">Upload sketch HEX File for RFLink: </p>
+                <p>
+                    <input type="file" id="flashFile" />
+                    <div id="not-started" class="translate">not-started</div>
+                </p>
+                <p class="translate">
+                    <button id="flash_default" class="translate">Flash default sketch</button>
+                </p>
             </div>
         </div>
     </div>

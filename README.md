@@ -13,12 +13,11 @@ Used for receiving the data from weather sensors and wireless power switches.
 
 ## Prerequires
 To use serial port on Windows it is VS required to build the binary.
-To use serial port on linux it is build-essential an python2.7 required. To install them just write:
+To use serial port on linux it is build-essential required. To install it just write:
 
 ```
 sudo apt-get update
-sudo apt-get install build-essential
-sudo apt-get install python2.7
+sudo apt-get install build-essential -y
 ```
 
 ## Usage
@@ -44,6 +43,10 @@ If system detect more than one device with such a parameter it will automaticall
 
 
 ## Changelog
+### 1.0.0 (2016-10-22)
+* (bluefox) Flashing of sketch into arduino
+* (bluefox) Set_level from 1 to 15
+
 ### 0.2.1 (2016-10-19)
 * (bluefox) Fix for SET_LEVEL
 

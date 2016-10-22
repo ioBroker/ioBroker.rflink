@@ -15,9 +15,8 @@ var decoders = {
     },
     SET_LEVEL: function(value) {
         var result;
-        result = Math.round(parseInt(value) * 99 / 15) + 1;
-        result = Math.max(1, Math.min(100, result));
-        result = parseFloat(result) || 0;
+        result = parseInt(value, 10);
+        result = Math.max(1, Math.min(15, result));
         return result;
     },
     TEMP: function(value) {
@@ -130,7 +129,7 @@ var encoders = {
         }
     },
     SET_LEVEL: function(value) {
-        return 'SET_LEVEL=' + Math.round(value * 15 / 100).toString();
+        return 'SET_LEVEL=' + (parseInt(value, 10) || 1);
     },
     TEMP: function(value) {
         var result;
@@ -371,8 +370,8 @@ function analyseFrame(frame, newId, index) {
                     name:  frame.brandRaw + ' ' + index + ' Set level ' + frame.SWITCH.toString(),
                     type:  'number',
                     role:  'level.dimmer',
-                    min:   0,
-                    max:   100,
+                    min:   1,
+                    max:   15,
                     read:  true,
                     write: true
                 },

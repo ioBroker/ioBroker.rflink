@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "rflink",
-    "version": "0.2.1",
+    "version": "1.0.0",
     "news": {
+      "1.0.0": {
+        "en": "Flashing of sketch into arduino\nSet_level from 1 to 15",
+        "de": "Schreiben von Sketch ins Arduino\nSetzte set_level von 1 bis 15",
+        "ru": "Запись скетча в Arduino\nУровент set_level от 1 до 15"
+      },
       "0.2.1": {
         "en": "Fix for SET_LEVEL",
         "de": "Korrigiere SET_LEVEL Steuerung",
@@ -48,6 +53,7 @@
   },
   "native": {
     "comName":          "",
+    "board":            "mega",
     "connTimeout":      600000,
     "baudRate":         57600,
     "inclusionTimeout": 300000

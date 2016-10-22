@@ -16,8 +16,9 @@ var inclusionTimeout = false;
 var addQueue     = [];
 var lastReceived = {};
 var repairInterval = null;
-var comm;
 var skipFirst    = true;
+var flash        = require(__dirname + '/lib/flash.js');
+var comm;
 
 adapter.on('message', function (obj) {
     if (obj) {
@@ -36,6 +37,31 @@ adapter.on('message', function (obj) {
                     }
                 }
 
+                break;
+            case 'flash':
+                if (comm) {
+                    comm.destroy();
+                    comm = null;
+                }
+
+                obj.message = obj.message  || {};
+                obj.message.hex = obj.message.hex || __dirname + '/hex/RFLinkR43.cpp.hex';
+
+                flash(obj.message, adapter.config, adapter.log, function (err) {
+                    if (obj.callback) {
+                        if (err) adapter.log.error('Cannot flash: ' + err);
+                        adapter.sendTo(obj.from, obj.command, {error: err ? err.message : null}, obj.callback);
+                    } else {
+                        if (err) adapter.log.error('Cannot flash: ' + err);
+                        obj = null;
+                    }
+                    // start communication again
+                    start(true);
+                });
+                break;
+
+            default:
+                adapter.log.error('Unknown command: ' + obj.command);
                 break;
         }
     }
@@ -141,7 +167,7 @@ function writeCommand(id, value, callback) {
         command += states[id].native.attr + '=' + value + ';';
     }
     adapter.log.debug('Write: ' + command);
-    comm.write(command, callback);
+    if (comm) comm.write(command, callback);
 }
 
 function setInclusionState(val) {
@@ -490,6 +516,30 @@ function processFrame(frame, isAdd, callback) {
     }
 }
 
+function start(doNotSendStart) {
+    comm = new Serial(adapter.config, adapter.log, function (err) {
+        // done
+        if (err) {
+            adapter.log.error('Cannot open port: ' + err);
+        } else {
+            if (comm && !doNotSendStart) comm.write('10;REBOOT;');
+        }
+    });
+    comm.on('connectionChange', function (connected) {
+        if (!connected) skipFirst = true;
+        adapter.setState('info.connection', connected, true);
+    });
+    comm.on('data', function (data) {
+        var frame = Parses.parseString(data);
+        if (frame && !skipFirst) {
+            processFrame(frame);
+        } else {
+            if (skipFirst) skipFirst = false;
+            adapter.log.debug('Skip frame: ' + data);
+        }
+    });
+}
+
 // deactivated
 /*
  function checkAutoRepair() {
@@ -535,27 +585,7 @@ function main() {
             // deactivated
             //repairInterval = setInterval(checkAutoRepair, 60000);
 
-            comm = new Serial(adapter.config, adapter.log, function (err) {
-                // done
-                if (err) {
-                    adapter.log.error('Cannot open port: ' + err);
-                } else {
-                    comm.write('10;REBOOT;');
-                }
-            });
-            comm.on('connectionChange', function (connected) {
-                if (!connected) skipFirst = true;
-                adapter.setState('info.connection', connected, true);
-            });
-            comm.on('data', function (data) {
-                var frame = Parses.parseString(data);
-                if (frame && !skipFirst) {
-                    processFrame(frame);
-                } else {
-                    if (skipFirst) skipFirst = false;
-                    adapter.log.debug('Skip frame: ' + data);
-                }
-            });
+            start();
         });
     });
 }
