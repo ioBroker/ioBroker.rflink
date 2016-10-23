@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "rflink",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "news": {
-      "1.0.0": {
+      "1.0.1": {
         "en": "Flashing of sketch into arduino\nSet_level from 1 to 15",
         "de": "Schreiben von Sketch ins Arduino\nSetzte set_level von 1 bis 15",
         "ru": "Запись скетча в Arduino\nУровент set_level от 1 до 15"

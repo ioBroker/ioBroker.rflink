@@ -534,9 +534,9 @@ function start(doNotSendStart) {
         if (frame && !skipFirst) {
             processFrame(frame);
         } else {
-            adapter.setState('rawData', frame.dataRaw, true);
-            var m;
-            if ((m = data.match(/RFLink\sGateway\s(.+);$/))) {
+            adapter.setState('rawData', data, true);
+            var m = data.match(/RFLink\sGateway\s(.+);$/);
+            if (m) {
                 adapter.setState('firmwareVersion', m[1], true);
             }
             if (skipFirst) skipFirst = false;
