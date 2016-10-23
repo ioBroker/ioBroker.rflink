@@ -43,7 +43,7 @@ If system detect more than one device with such a parameter it will automaticall
 
 
 ## Changelog
-### 1.0.1 (2016-10-22)
+### 1.0.2 (2016-10-23)
 * (bluefox) Flashing of sketch into arduino
 * (bluefox) Set_level from 1 to 15
 * (bluefox) show version of sketch

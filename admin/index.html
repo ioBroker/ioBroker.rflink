@@ -140,7 +140,19 @@
         "for one minute":       {"en": "for one minute",    "de": "vor eine Minute",    "ru": "одну минуту назад"},
         "for <b>%s</b> minutes": {"en": "for <b>%s</b> minutes", "de": "vor <b>%s</b> Minuten", "ru": "<b>%s</b> мин. назад"},
         "just <b>now</b>":      {"en": "just <b>now</b>",   "de": "gerade <b>jetzt</b>", "ru": "<b>только</b> что"},
-        "Flash Arduino":        {"en": "Flash Arduino",     "de": "Arduino flashen", "ru": "Запись на Arduino"},
+        "Flash Arduino":        {"en": "Flash Arduino",     "de": "Arduino flashen",     "ru": "Запись на Arduino"},
+        "File is too big!":     {"en": "File is too big!",  "de": "Datei ist zu groß!",    "ru": "Файл слишком большой!"},
+        "Drop the files here":  {"en": "Drop the files here", "de": "Dateien hierher reinziehen", "ru": "Перетащите файлы сюда"},
+        "invalid_extension":    {
+            "en": "Invalid file extension! Only *.hex are allowed.",
+            "de": "Falscher Dateiname! Nur *.hex sind erlaubt.",
+            "ru": "Неправильное расширение файла! Можно использовать только *.hex."
+        },
+        "Flashing... Please wait":        {
+            "en": "Flashing... Please wait",
+            "de": "Schreibe... Bitte warten",
+            "ru": "Записываю... Пожалуйста подождите"
+        },
         "Upload sketch HEX File for RFLink: ": {
             "en": "Upload sketch HEX File for RFLink: ",
             "de": "Sketch-HEX-Datei für RFLink laden: ",
@@ -517,10 +529,10 @@
             return false;
         }
         if (file.name.toLowerCase().split('.').pop() !== 'hex') {
-            $('#drop-text').html(_('Invalid file extension! Only *.hex are allowed.'));
+            $('#drop-text').html(_('invalid_extension'));
             $dz.addClass('dropZone-error').animate({opacity: 0}, 1000, function () {
                 $dz.hide().removeClass('dropZone-error').css({opacity: 1});
-                showMessage(_('Invalid file extension! Only *.hex are allowed.'));
+                showMessage(_('invalid_extension'));
                 $('#drop-text').html(_('Drop the files here'));
             });
             $('#flashFile').replaceWith($('#flashFile').clone(true));
@@ -529,7 +541,7 @@
         $dz.show();
         $('#flash_default').prop('disabled', true);
         $('#flashFile').prop('disabled', true);
-        $('#drop-text').hide();
+        $('#drop-text').html(_('Flashing... Please wait'));
         var reader = new FileReader();
         reader.onload = function (evt) {
             var text;
@@ -546,8 +558,8 @@
                 });
                 return;
             }
-
             sendTo(null, 'flash', {hex: text}, function (result) {
+                $dz.hide();
                 if (result.error) {
                     showMessage(_('Cannot flash: ') + (result.error.message || result.error), _('Flash error'));
                 } else {
@@ -900,7 +912,7 @@
                 </div>
                 <p class="translate">Upload sketch HEX File for RFLink: </p>
                 <p>
-                    <input type="file" id="flashFile" />
+                    <input type="file" id="flashFile"/>
                     <div id="not-started" class="translate">not-started</div>
                 </p>
                 <p class="translate">
