@@ -107,6 +107,19 @@
         "write": false
       },
       "native": {}
+    },
+    {
+      "_id":  "firmwareVersion",
+      "type": "state",
+      "common": {
+        "role":  "state",
+        "name":  "Firmware version",
+        "desc":  "Actual firmware version",
+        "type":  "string",
+        "read":  true,
+        "write": false
+      },
+      "native": {}
     }
   ]
 }

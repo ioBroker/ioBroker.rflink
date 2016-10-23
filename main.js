@@ -534,6 +534,11 @@ function start(doNotSendStart) {
         if (frame && !skipFirst) {
             processFrame(frame);
         } else {
+            adapter.setState('rawData', frame.dataRaw, true);
+            var m;
+            if ((m = data.match(/RFLink\sGateway\s(.+);$/))) {
+                adapter.setState('firmwareVersion', m[1], true);
+            }
             if (skipFirst) skipFirst = false;
             adapter.log.debug('Skip frame: ' + data);
         }
