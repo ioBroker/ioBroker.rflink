@@ -148,6 +148,11 @@
             "de": "Falscher Dateiname! Nur *.hex sind erlaubt.",
             "ru": "Неправильное расширение файла! Можно использовать только *.hex."
         },
+        "Flash will start immediately. Are you sure?":    {
+            "en": "Flash will start immediately. Are you sure?",
+            "de": "Flashprozess wird sofort gestartet. Vortsetzen?",
+            "ru": "Запись начнётся сразу. Продолжить?"
+        },
         "Flashing... Please wait":        {
             "en": "Flashing... Please wait",
             "de": "Schreibe... Bitte warten",
@@ -514,6 +519,20 @@
         }
     }
 
+    function flash(hex) {
+        sendTo(null, 'flash', {hex: hex}, function (result) {
+            $('#drop-zone').hide();
+            if (result.error) {
+                showMessage(_('Cannot flash: ') + (result.error.message || result.error), _('Flash error'));
+            } else {
+                showMessage(_('File was successfully flashed'), _('Success'));
+            }
+            $('#flash_default').prop('disabled', false);
+            $('#flashFile').prop('disabled', false);
+            $('#drop-text').html(_('Drop the files here'));
+        });
+    }
+
     function fileHandler(event) {
         event.preventDefault();
         var file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
@@ -558,33 +577,29 @@
                 });
                 return;
             }
-            sendTo(null, 'flash', {hex: text}, function (result) {
-                $dz.hide();
-                if (result.error) {
-                    showMessage(_('Cannot flash: ') + (result.error.message || result.error), _('Flash error'));
-                } else {
-                    showMessage(_('File was successfully flashed'), _('Success'));
-                }
-                $('#flash_default').prop('disabled', false);
-                $('#flashFile').prop('disabled', false);
-                $('#drop-text').html(_('Drop the files here'));
-            });
+            if (confirmMessage) {
+                confirmMessage(_('Flash will start immediately. Are you sure?'), function (result) {
+                    if (result) flash(text);
+                });
+            } else {
+                flash(text);
+            }
         };
         reader.readAsDataURL(file);
     }
 
-    function defaultFlash() {
-        $('#flash_default').prop('disabled', true);
-        $('#flashFile').prop('disabled', true);
-        sendTo(null, 'flash', null, function (result) {
-            if (result.error) {
-                showMessage(_('Cannot flash: ') + (result.error.message || result.error), _('Flash error'));
-            } else {
-                showMessage(_('File was successfully flashed'), _('Success'));
-            }
-            $('#flash_default').prop('disabled', false);
-            $('#flashFile').prop('disabled', false);
-        });
+    function defaultFlash(isAsked) {
+        if (!isAsked && confirmMessage) {
+            confirmMessage(_('Flash will start immediately. Are you sure?'), function (result) {
+                if (result) defaultFlash(true);
+            });
+        } else {
+            $('#drop-zone').show();
+            $('#flash_default').prop('disabled', true);
+            $('#flashFile').prop('disabled', true);
+            $('#drop-text').html(_('Flashing... Please wait'));
+            flash();
+        }
     }
 
     function load(settings, onChange) {
