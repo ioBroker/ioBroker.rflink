@@ -683,6 +683,8 @@
                 $('#flashFile').prop('disabled', true);
                 $('#flash_default').prop('disabled', true);
                 $('#not-started').show();
+                $('#_comName').html('<input id="comName" class="value" value="' + settings.comName + '"/>');
+                $('#comName').change(onChange).keyup(onChange);
             }
         });
 
@@ -859,7 +861,7 @@
             <div id="tabs-1">
                 <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
                 <table>
-                    <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
+                    <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td id="_comName"><select class="value oneWidth" id="comName"></select></td><td></td></tr>
                     <tr class="serial"><td><label for="baudRate" class="translate">Baud rate:</label></td><td><select class="value oneWidth" id="baudRate">
                         <option value="110">110</option>
                         <option value="150">150</option>
