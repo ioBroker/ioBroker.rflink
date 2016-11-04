@@ -1,6 +1,6 @@
 {
   "name": "iobroker.rflink",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "ioBroker RFLink Adapter",
   "author": {
     "name": "bluefox",
@@ -28,7 +28,8 @@
     "avrgirl-arduino": "^1.9.8"
   },
   "dependencies": {
-    "serialport": "^2.1.2"
+    "serialport": "^2.1.2",
+    "request": "^2.76.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

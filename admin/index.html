@@ -183,6 +183,8 @@
     var values   = {};
     var problems = [];
     var timers   = [];
+    var availableVersion = null;
+    var fwLink   = '';
 
     function getComPorts(actualValue) {
         timeout = setTimeout(function () {
@@ -683,8 +685,6 @@
                 $('#flashFile').prop('disabled', true);
                 $('#flash_default').prop('disabled', true);
                 $('#not-started').show();
-                $('#_comName').html('<input id="comName" class="value" value="' + settings.comName + '"/>');
-                $('#comName').change(onChange).keyup(onChange);
             }
         });
 
@@ -704,8 +704,6 @@
                         }
                     }
 
-
-
                     res.rows.sort(function (a, b) {
                         if (a.value.native.brand > b.value.native.brand) return 1;
                         if (a.value.native.brand < b.value.native.brand) return -1;
@@ -715,6 +713,9 @@
                     for (var i = 0; i < res.rows.length; i++) {
                         showDevice(res.rows[i].value);
                     }
+
+                    updateVersion();
+
                     checkAutoRepairs();
                     setInterval(updateIntervals, 10000);
                 });
@@ -753,9 +754,13 @@
         });
 
         socket.on('stateChange', function (id, state) {
+            if (id === 'rflink.' + instance + '.firmwareVersion' || id === 'rflink.' + instance + '.availableVersion') {
+                updateVersion();
+            } else
             if (id === 'rflink.' + instance + '.inclusionOn') {
                 $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
-            } else if (id === 'rflink.' + instance + '.rawData'){
+            } else
+            if (id === 'rflink.' + instance + '.rawData') {
                 // analyse rawData
                 if (!state || !state.val || !state.ack || typeof state.val !== 'string') return;
 
@@ -824,7 +829,36 @@
             });
         });
 
+        sendTo(null, 'readNewVersion', null, function (result) {
+            fwLink = result ? result.fwLink : null;
+        });
+
         onChange(false);
+    }
+
+    function updateVersion() {
+        var actual;
+        if (values['rflink.' + instance + '.firmwareVersion']) {
+            actual = values['rflink.' + instance + '.firmwareVersion'].val;
+            $('#actual_version').html(actual); //"V1.1 - R44"
+            if (actual.indexOf('-') !== -1) {
+                var parts = actual.split('-');
+                actual = parseInt(parts[1].trim().replace('R', ''), 10);
+            }
+        }
+        if (values['rflink.' + instance + '.availableVersion']) {
+            $('#new_version').html(values['rflink.' + instance + '.availableVersion'].val);
+        }
+        if (values['rflink.' + instance + '.availableVersion'] && actual) {
+            if (parseInt(values['rflink.' + instance + '.availableVersion'].val, 10) > actual) {
+                $('#flash_tab a').css('color', 'green');
+                $('#flash_button').show();
+                $('#info_newest').hide();
+            } else {
+                $('#flash_button').hide();
+                $('#info_newest').show();
+            }
+        }
     }
 
     function save(callback) {
@@ -856,12 +890,12 @@
             <ul>
                 <li><a href="#tabs-1" class="translate">Options</a></li>
                 <li><a href="#tabs-2" class="translate">Devices</a></li>
-                <li><a href="#tabs-3" class="translate">Flash Arduino</a></li>
+                <li id="flash_tab"><a href="#tabs-3" class="translate">Flash Arduino</a></li>
             </ul>
             <div id="tabs-1">
                 <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
                 <table>
-                    <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td id="_comName"><select class="value oneWidth" id="comName"></select></td><td></td></tr>
+                    <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
                     <tr class="serial"><td><label for="baudRate" class="translate">Baud rate:</label></td><td><select class="value oneWidth" id="baudRate">
                         <option value="110">110</option>
                         <option value="150">150</option>
@@ -932,9 +966,11 @@
                     <input type="file" id="flashFile"/>
                     <div id="not-started" class="translate">not-started</div>
                 </p>
-                <p class="translate">
-                    <button id="flash_default" class="translate">Flash default sketch</button>
+                <p><span class="translate">Actual version: </span><span id="actual_version">???</span>, <span class="translate">Available version: </span><span id="new_version">???</span></p>
+                <p id="flash_button">
+                    <button id="flash_default" class="translate">Flash newest sketch</button>
                 </p>
+                <p id="info_newest" class="translate" style="display: none; color: green">You have newest version.</p>
             </div>
         </div>
     </div>

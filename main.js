@@ -19,6 +19,7 @@ var repairInterval = null;
 var skipFirst    = true;
 var flash        = require(__dirname + '/lib/flash.js');
 var comm;
+var fwLink;
 
 adapter.on('message', function (obj) {
     if (obj) {
@@ -38,6 +39,26 @@ adapter.on('message', function (obj) {
                 }
 
                 break;
+
+            case 'readNewVersion':
+                var request      = require('request');
+                request('http://www.nemcon.nl/blog2/fw/iob/update.jsp', function (error, message, data) {
+                    var m;
+                    if ((m = data.match(/iob\/(\d+)\/RFLink\.cpp\.hex/))) {
+                        adapter.setState('availableVersion', m[1], true);
+                    }
+                    if (obj.callback) {
+                        if ((m = data.match(/<Url>(.+)<\/Url>/))) {
+                            fwLink = m[1];
+                        }
+                        if (obj.callback) {
+                            adapter.sendTo(obj.from, obj.command, {fwLink: fwLink}, obj.callback);
+                        }
+                    }
+                });
+
+                break;
+
             case 'flash':
                 if (comm) {
                     comm.destroy();
@@ -45,7 +66,7 @@ adapter.on('message', function (obj) {
                 }
 
                 obj.message = obj.message  || {};
-                obj.message.hex = obj.message.hex || __dirname + '/hex/RFLinkR43.cpp.hex';
+                obj.message.hex = obj.message.hex || fwLink || __dirname + '/hex/RFLinkR44.cpp.hex';
 
                 flash(obj.message, adapter.config, adapter.log, function (err) {
                     if (obj.callback) {

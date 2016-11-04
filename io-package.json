@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "rflink",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "news": {
+      "1.0.3": {
+        "en": "Read newest sketch from web",
+        "de": "Lese neue Sketch Version aus dem Web",
+        "ru": "Читать новую версию скетча из интернета"
+      },
       "1.0.2": {
         "en": "Flashing of sketch into arduino\nSet_level from 1 to 15",
         "de": "Schreiben von Sketch ins Arduino\nSetzte set_level von 1 bis 15",
@@ -115,6 +120,19 @@
         "role":  "state",
         "name":  "Firmware version",
         "desc":  "Actual firmware version",
+        "type":  "string",
+        "read":  true,
+        "write": false
+      },
+      "native": {}
+    },
+    {
+      "_id":  "availableVersion",
+      "type": "state",
+      "common": {
+        "role":  "state",
+        "name":  "Available firmware version",
+        "desc":  "Latest firmware version",
         "type":  "string",
         "read":  true,
         "write": false
