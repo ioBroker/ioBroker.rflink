@@ -143,6 +143,13 @@
         "Flash Arduino":        {"en": "Flash Arduino",     "de": "Arduino flashen",     "ru": "Запись на Arduino"},
         "File is too big!":     {"en": "File is too big!",  "de": "Datei ist zu groß!",    "ru": "Файл слишком большой!"},
         "Drop the files here":  {"en": "Drop the files here", "de": "Dateien hierher reinziehen", "ru": "Перетащите файлы сюда"},
+        "Board type:":          {"en": "Board type:",       "de": "Boardtyp:", "ru": "Board type:"},
+        "Actual version: ":     {"en": "Actual version: ",  "de": "Aktuelle Version: ", "ru": "Текущая версия: "},
+        "Available version: ":  {"en": "Available version: ", "de": "Online Version: ", "ru": "Доступная версия: "},
+        "Flash newest sketch":  {"en": "Flash newest sketch", "de": "Flash newest sketch", "ru": "Записать новую прошивку"},
+        "You have newest version.": {"en": "You have newest version.", "de": "Sie haben neueeste Version", "ru": "Новая версия уже установлена."},
+        "Question":             {"en": "Question",          "de": "Frage",              "ru": "Вопрос"},
+        "Cancel":               {"en": "Cancel",            "de": "Abbrechen",          "ru": "Отменить"},
         "invalid_extension":    {
             "en": "Invalid file extension! Only *.hex are allowed.",
             "de": "Falscher Dateiname! Nur *.hex sind erlaubt.",
@@ -287,7 +294,7 @@
         }
 
         text += '<td style="text-align: right; white-space: nowrap;" class="' + _class + '" title="' + title + '">'  + obj.native.brand  + '</td>'
-                ;
+        ;
         text += '<td style="text-align: center;">' + obj.native.index + '</td>';
         text += '<td style="text-align: center;"><input class="auto-repair" type="checkbox" data-id="' + obj._id + '" ' + (obj.native.autoRepair ? 'checked' : '') + ' /></td>';
 //        if (obj.native.offset !== undefined) {
@@ -462,7 +469,7 @@
 
             // If device suits to it
             if (channels[__id].native.brand === obj.native.brand &&
-                channels[__id].native.attrs === obj.native.attrs
+                    channels[__id].native.attrs === obj.native.attrs
             ) {
                 pairs.push(__id);
                 if (channels[__id].native.autoRepair) autoRepair.push(__id);
@@ -580,7 +587,7 @@
                 return;
             }
             if (confirmMessage) {
-                confirmMessage(_('Flash will start immediately. Are you sure?'), function (result) {
+                confirmMessage(_('Flash will start immediately. Are you sure?'), _('Question'), 'alert', function (result) {
                     if (result) flash(text);
                 });
             } else {
@@ -755,9 +762,11 @@
 
         socket.on('stateChange', function (id, state) {
             if (id === 'rflink.' + instance + '.firmwareVersion' || id === 'rflink.' + instance + '.availableVersion') {
+                values[id] = state;
                 updateVersion();
             } else
             if (id === 'rflink.' + instance + '.inclusionOn') {
+                values[id] = state;
                 $('#enableInclusion').button('option', 'label', state && state.val ? _('Disable inclusion mode') : _('Enable inclusion mode'));
             } else
             if (id === 'rflink.' + instance + '.rawData') {
@@ -767,29 +776,29 @@
                 // received something like:
                 // UPM/Esic;ID=0001;TEMP=00cf;HUM=16;BAT=OK;
                 /*var frame = parseString(state.val);
-                if (!frame) return;
+                 if (!frame) return;
 
-                console.log('Incoming data: ' + JSON.stringify(frame));
+                 console.log('Incoming data: ' + JSON.stringify(frame));
 
-                for (var _id in channels) {
-                    if (!channels.hasOwnProperty(_id) || !channels[_id].native) continue;
+                 for (var _id in channels) {
+                 if (!channels.hasOwnProperty(_id) || !channels[_id].native) continue;
 
-                    if (channels[_id].native.brand === frame.brandRaw &&
-                        channels[_id].native.ID    === frame.ID &&
-                        (frame.SWITCH === undefined || (channels[_id].native.switches && channels[_id].native.switches.indexOf(frame.SWITCH) !== -1))
-                    ) {
-                        delete frame.ID;
-                        delete frame.brand;
-                        delete frame.brandRaw;
+                 if (channels[_id].native.brand === frame.brandRaw &&
+                 channels[_id].native.ID    === frame.ID &&
+                 (frame.SWITCH === undefined || (channels[_id].native.switches && channels[_id].native.switches.indexOf(frame.SWITCH) !== -1))
+                 ) {
+                 delete frame.ID;
+                 delete frame.brand;
+                 delete frame.brandRaw;
 
-                        var text = getIntervalAsText(_id) + ', ';
-                        text += '<span class="highlight">' + stringifyFrame(frame) + '</span>';
-                        $('.raw-value[data-id="' + _id + '"]').html(text);
-                        return;
-                    }
-                }
+                 var text = getIntervalAsText(_id) + ', ';
+                 text += '<span class="highlight">' + stringifyFrame(frame) + '</span>';
+                 $('.raw-value[data-id="' + _id + '"]').html(text);
+                 return;
+                 }
+                 }
 
-                */
+                 */
             } else {
                 if (id.substring(0, ('rflink.' + instance + '.').length) !== 'rflink.' + instance + '.') return;
                 values[id] = state;
@@ -841,7 +850,7 @@
         if (values['rflink.' + instance + '.firmwareVersion']) {
             actual = values['rflink.' + instance + '.firmwareVersion'].val;
             $('#actual_version').html(actual); //"V1.1 - R44"
-            if (actual.indexOf('-') !== -1) {
+            if (actual.toString().indexOf('-') !== -1) {
                 var parts = actual.split('-');
                 actual = parseInt(parts[1].trim().replace('R', ''), 10);
             }
@@ -857,6 +866,7 @@
             } else {
                 $('#flash_button').hide();
                 $('#info_newest').show();
+                $('#flash_tab a').css('color', '');
             }
         }
     }
@@ -885,93 +895,93 @@
         font-size: small;
     }
 </style>
-    <div id="adapter-container" style="width: 100%; height: 100%; overflow: hidden">
-        <div id="tabs" style="width: 100%; height: 100%; overflow: hidden; display: none;">
-            <ul>
-                <li><a href="#tabs-1" class="translate">Options</a></li>
-                <li><a href="#tabs-2" class="translate">Devices</a></li>
-                <li id="flash_tab"><a href="#tabs-3" class="translate">Flash Arduino</a></li>
-            </ul>
-            <div id="tabs-1">
-                <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
-                <table>
-                    <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
-                    <tr class="serial"><td><label for="baudRate" class="translate">Baud rate:</label></td><td><select class="value oneWidth" id="baudRate">
-                        <option value="110">110</option>
-                        <option value="150">150</option>
-                        <option value="300">300</option>
-                        <option value="600">600</option>
-                        <option value="1200">1200</option>
-                        <option value="2400">2400</option>
-                        <option value="4800">4800</option>
-                        <option value="9600">9600</option>
-                        <option value="19200">19200</option>
-                        <option value="38400">38400</option>
-                        <option value="56000">56000</option>
-                        <option value="57600">57600</option>
-                        <option value="115200">115200</option>
-                    </select></td><td></td></tr>
-                    <tr class="serial"><td><label for="board" class="translate">Board type:</label></td><td>
-                            <select class="value" id="board">
-                                <option value="uno">Arduino Uno</option>
-                                <option value="mega">Arduino Mega</option>
-                                <option value="leonardo">Arduino Leonardo</option>
-                                <option value="micro">Arduino Micro</option>
-                                <option value="nano">Arduino Nano</option>
-                                <option value="duemilanove168">Arduino Duemilanove</option>
-                                <option value="blend-micro">RedBearLab Blend Micro</option>
-                                <option value="tinyduino">Tiny Circuits Tinyduino</option>
-                                <option value="sf-pro-micro">SparkFun Pro Micro</option>
-                                <option value="qduino">Qtechknow Qduino</option>
-                                <option value="pinoccio">Pinoccio Scout</option>
-                                <option value="imuduino">Femtoduino IMUduino</option>
-                                <option value="feather">Adafruit Feather 32u4 Basic Proto</option>
-                                <option value="arduboy">Arduboy</option>
-                            </select>
-                        </td>
-                        <td></td>
-                    </tr>
-                    <tr><td><label for="connTimeout" class="translate">Connection timeout:</label></td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
-                    <tr><td><label for="inclusionTimeout" class="translate">Inclusion mode timeout:</label></td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
-                    <!--tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair:</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">re-pair help</span></td></tr-->
-                    <tr><td></td><td colspan="2"><button id="enableInclusion" class="translateB">Enable inclusion mode</button><div id="inclusionState"></div></td></tr>
-                </table>
-            </div>
-            <div id="tabs-2" style="width: 100%; height: calc(100% - 40px); overflow-x: hidden; overflow-y: auto; padding: 0">
-                <table style="width: 100%;">
-                    <thead>
-                    <tr class="ui-widget-header">
-                        <td style="width: 100px; text-align: center; white-space: nowrap; white-space: nowrap" class="translate">Brand</td>
-                        <td style="width: 70px;  text-align: center; white-space: nowrap" class="translate">Number</td>
-                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair</td>
-                        <!--td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Offset</td>
-                        <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Factor</td-->
-                        <!--td style="width: 50px;  text-align: center" class="translate">ID</td-->
-                        <td style="width: 200px; text-align: left;   white-space: nowrap" class="translate">Values</td>
-                        <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate">Pair</td>
-                        <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate"></td>
-                    </tr>
-                    </thead>
-                    <tbody id="devices">
+<div id="adapter-container" style="width: 100%; height: 100%; overflow: hidden">
+    <div id="tabs" style="width: 100%; height: 100%; overflow: hidden; display: none;">
+        <ul>
+            <li><a href="#tabs-1" class="translate">Options</a></li>
+            <li><a href="#tabs-2" class="translate">Devices</a></li>
+            <li id="flash_tab"><a href="#tabs-3" class="translate">Flash Arduino</a></li>
+        </ul>
+        <div id="tabs-1">
+            <table><tr><td><img src="rflink.png"></td><td><h3 class="translate">RFLink adapter settings</h3></td></tr></table>
+            <table>
+                <tr class="serial"><td><label for="comName" class="translate">Com port:</label></td><td><select class="value oneWidth" id="comName"></select></td><td></td></tr>
+                <tr class="serial"><td><label for="baudRate" class="translate">Baud rate:</label></td><td><select class="value oneWidth" id="baudRate">
+                    <option value="110">110</option>
+                    <option value="150">150</option>
+                    <option value="300">300</option>
+                    <option value="600">600</option>
+                    <option value="1200">1200</option>
+                    <option value="2400">2400</option>
+                    <option value="4800">4800</option>
+                    <option value="9600">9600</option>
+                    <option value="19200">19200</option>
+                    <option value="38400">38400</option>
+                    <option value="56000">56000</option>
+                    <option value="57600">57600</option>
+                    <option value="115200">115200</option>
+                </select></td><td></td></tr>
+                <tr class="serial"><td><label for="board" class="translate">Board type:</label></td><td>
+                    <select class="value" id="board">
+                        <option value="uno">Arduino Uno</option>
+                        <option value="mega">Arduino Mega</option>
+                        <option value="leonardo">Arduino Leonardo</option>
+                        <option value="micro">Arduino Micro</option>
+                        <option value="nano">Arduino Nano</option>
+                        <option value="duemilanove168">Arduino Duemilanove</option>
+                        <option value="blend-micro">RedBearLab Blend Micro</option>
+                        <option value="tinyduino">Tiny Circuits Tinyduino</option>
+                        <option value="sf-pro-micro">SparkFun Pro Micro</option>
+                        <option value="qduino">Qtechknow Qduino</option>
+                        <option value="pinoccio">Pinoccio Scout</option>
+                        <option value="imuduino">Femtoduino IMUduino</option>
+                        <option value="feather">Adafruit Feather 32u4 Basic Proto</option>
+                        <option value="arduboy">Arduboy</option>
+                    </select>
+                </td>
+                    <td></td>
+                </tr>
+                <tr><td><label for="connTimeout" class="translate">Connection timeout:</label></td><td><input class="value oneWidth" id="connTimeout" /></td><td class="translate">ms</td></tr>
+                <tr><td><label for="inclusionTimeout" class="translate">Inclusion mode timeout:</label></td><td><input class="value oneWidth" id="inclusionTimeout" /></td><td><span class="translate">inclusion help</span></td></tr>
+                <!--tr><td><label for="autoRepair" class="translate">Timeout for auto re-pair:</label></td><td><input class="value oneWidth" id="autoRepair" /></td><td><span class="translate">re-pair help</span></td></tr-->
+                <tr><td></td><td colspan="2"><button id="enableInclusion" class="translateB">Enable inclusion mode</button><div id="inclusionState"></div></td></tr>
+            </table>
+        </div>
+        <div id="tabs-2" style="width: 100%; height: calc(100% - 40px); overflow-x: hidden; overflow-y: auto; padding: 0">
+            <table style="width: 100%;">
+                <thead>
+                <tr class="ui-widget-header">
+                    <td style="width: 100px; text-align: center; white-space: nowrap; white-space: nowrap" class="translate">Brand</td>
+                    <td style="width: 70px;  text-align: center; white-space: nowrap" class="translate">Number</td>
+                    <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Auto re-pair</td>
+                    <!--td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Offset</td>
+                    <td style="width: 50px;  text-align: center; white-space: nowrap" class="translate">Factor</td-->
+                    <!--td style="width: 50px;  text-align: center" class="translate">ID</td-->
+                    <td style="width: 200px; text-align: left;   white-space: nowrap" class="translate">Values</td>
+                    <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate">Pair</td>
+                    <td style="width: 30px;  text-align: center; white-space: nowrap" class="translate"></td>
+                </tr>
+                </thead>
+                <tbody id="devices">
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
+        </div>
+        <div id="tabs-3" style="width: 100%; height: 100%;display: none">
+            <div id="drop-zone">
+                <div style="padding-top: 15%" class="translate" id="drop-text">Drop the files here</div>
             </div>
-            <div id="tabs-3" style="width: 100%; height: 100%;display: none">
-                <div id="drop-zone">
-                    <div style="padding-top: 15%" class="translate" id="drop-text">Drop the files here</div>
-                </div>
-                <p class="translate">Upload sketch HEX File for RFLink: </p>
-                <p>
-                    <input type="file" id="flashFile"/>
-                    <div id="not-started" class="translate">not-started</div>
-                </p>
-                <p><span class="translate">Actual version: </span><span id="actual_version">???</span>, <span class="translate">Available version: </span><span id="new_version">???</span></p>
-                <p id="flash_button">
-                    <button id="flash_default" class="translate">Flash newest sketch</button>
-                </p>
-                <p id="info_newest" class="translate" style="display: none; color: green">You have newest version.</p>
-            </div>
+            <p class="translate">Upload sketch HEX File for RFLink: </p>
+            <p>
+                <input type="file" id="flashFile"/>
+            <div id="not-started" class="translate">not-started</div>
+            </p>
+            <p><span class="translate">Actual version: </span><span id="actual_version">???</span>, <span class="translate">Available version: </span><span id="new_version">???</span></p>
+            <p id="flash_button">
+                <button id="flash_default" class="translate">Flash newest sketch</button>
+            </p>
+            <p id="info_newest" class="translate" style="display: none; color: green">You have newest version.</p>
         </div>
     </div>
+</div>
 </html>

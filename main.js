@@ -556,7 +556,7 @@ function start(doNotSendStart) {
             processFrame(frame);
         } else {
             adapter.setState('rawData', data, true);
-            var m = data.match(/RFLink\sGateway\s(.+);$/);
+            var m = data.match(/RFLink\sGateway\s(.+);/);
             if (m) {
                 adapter.setState('firmwareVersion', m[1], true);
             }
