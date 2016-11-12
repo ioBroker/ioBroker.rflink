@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "rflink",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "news": {
-      "1.0.4": {
+      "1.0.5": {
         "en": "Read newest sketch from web",
         "de": "Lese neue Sketch Version aus dem Web",
         "ru": "Читать новую версию скетча из интернета"

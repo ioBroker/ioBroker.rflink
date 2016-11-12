@@ -43,7 +43,7 @@ If system detect more than one device with such a parameter it will automaticall
 
 
 ## Changelog
-### 1.0.4 (2016-11-04)
+### 1.0.5 (2016-11-11)
 * (bluefox) Read newest sketch from web
 
 ### 1.0.2 (2016-10-23)

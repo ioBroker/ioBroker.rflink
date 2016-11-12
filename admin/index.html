@@ -599,7 +599,7 @@
 
     function defaultFlash(isAsked) {
         if (!isAsked && confirmMessage) {
-            confirmMessage(_('Flash will start immediately. Are you sure?'), function (result) {
+            confirmMessage(_('Flash will start immediately. Are you sure?'), _('Question'), 'alert', function (result) {
                 if (result) defaultFlash(true);
             });
         } else {
@@ -614,6 +614,7 @@
     function load(settings, onChange) {
         if (!settings) return;
         for (var key in settings) {
+            if (!settings.hasOwnProperty(key)) continue;
             setValue(key, settings[key], onChange);
         }
 
@@ -655,7 +656,9 @@
             });
         }, 1000);
 
-        $('#flash_default').button().click(defaultFlash);
+        $('#flash_default').button().click(function () {
+            defaultFlash();
+        });
 
         getIsAdapterAlive(function (isAlive) {
 
