@@ -109,7 +109,7 @@
         "desc":  "Last received data",
         "type":  "string",
         "read":  true,
-        "write": false
+        "write": true
       },
       "native": {}
     },

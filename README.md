@@ -41,8 +41,16 @@ That means that only one device with this brand and type is present. (E.g. only 
 
 If system detect more than one device with such a parameter it will automatically deactivate the auto re-pairing mode and indicate problem sensors with flash.
 
+## Send raw commands
+The user has the possibility to send raw commands to device. Just write you command in form described [here](http://www.nemcon.nl/blog2/protref).
+
+E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
+### 1.0.6 (2016-11-27)
+* (bluefox) Support of raw commands
+* (bluefox) Support MiLightv1 commands
+
 ### 1.0.5 (2016-11-11)
 * (bluefox) Read newest sketch from web
 

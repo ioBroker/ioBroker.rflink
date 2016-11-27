@@ -464,6 +464,93 @@ function analyseFrame(frame, newId, index) {
             obj.common.role   = obj.common.type === 'boolean' ? 'indicator' : 'state';
             objs.push(obj);
         }
+
+        // add special commands:
+        if (attr === 'CMD' && frame.brandRaw === 'MiLightv1') {
+            // Disco plus
+            obj = {
+                _id:      newId + '.DISCO_PLUS',
+                common: {
+                    type:  'boolean',
+                    name:   frame.brandRaw + ' ' + index + ' DISCO_PLUS',
+                    role:  'button',
+                    read:  false,
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr   = 'DISCO';
+            obj.native.value  = 'DISCO+';
+            objs.push(obj);
+
+            obj = {
+                _id:      newId + '.DISCO_MINUS',
+                common: {
+                    type:  'boolean',
+                    read:  false,
+                    role:  'button',
+                    name:  frame.brandRaw + ' ' + index + ' DISCO_MINUS',
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr   = 'DISCO';
+            obj.native.value  = 'DISCO-';
+            objs.push(obj);
+
+            obj = {
+                _id:      newId + '.MODE',
+                common: {
+                    type:  'number',
+                    read:  false,
+                    min:   0,
+                    max:   8,
+                    role:  'level.mode',
+                    name:  frame.brandRaw + ' ' + index + ' MODE',
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr   = 'MODE';
+            objs.push(obj);
+
+            obj = {
+                _id:      newId + '.BRIGHTNESS',
+                common: {
+                    type:  'number',
+                    read:  false,
+                    min:   0,
+                    max:   255,
+                    role:  'level.dimmer',
+                    name:  frame.brandRaw + ' ' + index + ' BRIGHTNESS',
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr   = 'BRIGHT';
+            objs.push(obj);
+
+            obj = {
+                _id:      newId + '.COLOR',
+                common: {
+                    type:  'number',
+                    read:  false,
+                    min:   0,
+                    max:   255,
+                    role:  'level.color',
+                    name:  frame.brandRaw + ' ' + index + ' COLOR',
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.attr   = 'COLOR';
+            objs.push(obj);
+        }
     }
 
     return objs;
