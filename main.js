@@ -4,9 +4,15 @@
 
 // you have to require the utils module and call adapter function
 var utils        = require(__dirname + '/lib/utils'); // Get common adapter utils
-var serialport   = require('serialport');
+var serialport;
 var Parses       = require(__dirname + '/admin/parse.js');
 var Serial       = process.env.DEBUG ? require(__dirname + '/lib/debug.js') : require(__dirname + '/lib/serial.js');
+
+try {
+    serialport = require('serialport');
+} catch (err) {
+    console.error('Cannot load serialport module');
+}
 
 var adapter      = utils.adapter('rflink');
 var channels     = {};
@@ -183,7 +189,15 @@ function writeCommand(id, value, callback) {
         command += '00;3c00;MODE' + value  + ';';
     } else
     if (states[id].native.attr === 'DISCO') {
-        command += '00;3c00;' + states[id].native.value + ';';
+        command += '00;3c00;' + states[id].native.value + ';'; // if 3c00 (COLOR|BRIGHT) required ?
+    } else
+    if (states[id].native.brand === 'MiLightv1') {
+        if (value === 'true' || value === true || value === '1' || value === 1) {
+            value = 'ON';
+        } else {
+            value = 'OFF';
+        }
+        command += '00;3c00;' + value + ';';
     } else {
         if (states[id].native.switch !== undefined) command += states[id].native.switch + ';';
 
