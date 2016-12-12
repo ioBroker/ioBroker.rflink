@@ -84,6 +84,8 @@ describe('mySensors TCP: Test TCP server', function() {
             config.native.connTimeout = 5000;
             config.native.port      = port;
 
+            config.native.fileName = __dirname + '/lib/commands.txt';
+
             setup.setAdapterConfig(config.common, config.native);
 
             setup.startController(function (_objects, _states) {
