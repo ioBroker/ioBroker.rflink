@@ -21,7 +21,7 @@ before_script:
   - npm install winston@2.3.0
   - npm install https://github.com/ioBroker/ioBroker.js-controller/tarball/master --production
 env:
-  - CXX=g++-4.8
+  - CXX=g++-4.8 DEBUG=true
 addons:
   apt:
     sources:
