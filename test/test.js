@@ -89,27 +89,29 @@ describe('mySensors TCP: Test TCP server', function() {
             setup.startController(function (_objects, _states) {
                 objects = _objects;
                 states  = _states;
-                tcpClient.on('data', function (data) {
-                    if (!data) {
-                        console.log('Received empty string!');
-                        return;
-                    }
-                    var data = data.toString();
-                    console.log('Received ' + data);
-                    arr = data.split('\n');
-                    for (var t = arr.length - 1; t >= 0; t--) {
-                        if (!arr[t]) arr.splice(t, 1);
-                    }
-                    lastMessage = arr.length ? arr[arr.length - 1] : null;
-                    console.log('lastMessage: ' + lastMessage);
-                });
-                tcpClient.on('error', function (err) {
-                    console.error(err);
-                });
-                tcpClient.connect(port, '127.0.0.1', function() {
-                    console.log('Connected!!');
-                });
-                _done();
+                setTimeout(function() {
+                    tcpClient.on('data', function (data) {
+                        if (!data) {
+                            console.log('Received empty string!');
+                            return;
+                        }
+                        var data = data.toString();
+                        console.log('Received ' + data);
+                        arr = data.split('\n');
+                        for (var t = arr.length - 1; t >= 0; t--) {
+                            if (!arr[t]) arr.splice(t, 1);
+                        }
+                        lastMessage = arr.length ? arr[arr.length - 1] : null;
+                        console.log('lastMessage: ' + lastMessage);
+                    });
+                    tcpClient.on('error', function (err) {
+                        console.error(err);
+                    });
+                    tcpClient.connect(port, '127.0.0.1', function() {
+                        console.log('Connected!!');
+                    });
+                    _done();
+                }, 1000);
             });
         });
     });
