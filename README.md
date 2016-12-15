@@ -8,8 +8,11 @@
 
 [![NPM](https://nodei.co/npm/iobroker.rflink.png?downloads=true)](https://nodei.co/npm/iobroker.rflink/)
 
-This adapter communicates with [rflink](http://www.nemcon.nl/blog2/) build on arduino mega and RFC 433MHz/866MHz/2.6Gz communication. 
+This adapter communicates with [rflink](http://www.nemcon.nl/blog2/) build on arduino mega and RFC 433MHz/866MHz/2.6Gz communication.
 Used for receiving the data from weather sensors and wireless power switches.
+
+**Notice: This Adapter currently only supports Node <= 4.x ! Node 6.x+ not supported!**
+
 
 ## Prerequires
 To use serial port on Windows it is VS required to build the binary.
@@ -26,14 +29,14 @@ To enable the learning of sensors you must activate "Inclusion mode". The inclus
 To enable inclusion mode forever, just set "Inclusion timeout" to 0.
 
 ## Pair
-The devices get the new address every time the battery changed. 
+The devices get the new address every time the battery changed.
 
-So after the battery changed it must be learned anew. 
+So after the battery changed it must be learned anew.
 
-To do that press the pair button just before inserting the battery and the device will be learned with new address. 
+To do that press the pair button just before inserting the battery and the device will be learned with new address.
 
 ## Auto pairing
-If you have not so many sensors in the near you can activate auto re-pairing. 
+If you have not so many sensors in the near you can activate auto re-pairing.
 
 It is possible only if the device can be definitely identified.
 
@@ -47,9 +50,10 @@ The user has the possibility to send raw commands to device. Just write you comm
 E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
-### 1.0.6 (2016-11-27)
+### 1.0.6 (2016-12-15)
 * (bluefox) Support of raw commands
 * (bluefox) Support MiLightv1 commands
+* (Apollon77) update serialport library for node 6.x compatibility
 
 ### 1.0.5 (2016-11-11)
 * (bluefox) Read newest sketch from web
@@ -70,4 +74,3 @@ E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the 
 
 ### 0.1.3 (2016-10-17)
 * (bluefox) initial commit
-

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.rflink",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "ioBroker RFLink Adapter",
   "author": {
     "name": "bluefox",
@@ -28,7 +28,7 @@
     "avrgirl-arduino": "^1.9.8"
   },
   "dependencies": {
-    "serialport": "^2.1.2",
+    "serialport": "^3.1.2",
     "request": "^2.76.0"
   },
   "devDependencies": {
@@ -43,9 +43,9 @@
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.rflink/issues"
   },
+  "main": "main.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha"
   },
   "readmeFilename": "README.md"
 }
-
