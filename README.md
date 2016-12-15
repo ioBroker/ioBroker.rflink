@@ -50,9 +50,10 @@ The user has the possibility to send raw commands to device. Just write you comm
 E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
-### 1.0.6 (2016-11-27)
+### 1.0.6 (2016-12-15)
 * (bluefox) Support of raw commands
 * (bluefox) Support MiLightv1 commands
+* (Apollon77) update serialport library for node 6.x compatibility
 
 ### 1.0.5 (2016-11-11)
 * (bluefox) Read newest sketch from web
