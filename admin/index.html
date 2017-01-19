@@ -147,7 +147,7 @@
         "Actual version: ":     {"en": "Actual version: ",  "de": "Aktuelle Version: ", "ru": "Текущая версия: "},
         "Available version: ":  {"en": "Available version: ", "de": "Online Version: ", "ru": "Доступная версия: "},
         "Flash newest sketch":  {"en": "Flash newest sketch", "de": "Flash newest sketch", "ru": "Записать новую прошивку"},
-        "You have newest version.": {"en": "You have newest version.", "de": "Sie haben neueeste Version", "ru": "Новая версия уже установлена."},
+        "You have newest version.": {"en": "You have newest version.", "de": "Sie haben neueste Version", "ru": "Новая версия уже установлена."},
         "Question":             {"en": "Question",          "de": "Frage",              "ru": "Вопрос"},
         "Cancel":               {"en": "Cancel",            "de": "Abbrechen",          "ru": "Отменить"},
         "invalid_extension":    {
@@ -416,7 +416,7 @@
         var namespace = channelId + '.';
         var len = namespace.length;
         for (var id in values) {
-            if (id.substring(0, len) === namespace) ids.push(id);
+            if (values.hasOwnProperty(id) && values[id] && id.substring(0, len) === namespace) ids.push(id);
         }
         var value;
         if (ids.length) {

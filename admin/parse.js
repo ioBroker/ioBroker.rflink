@@ -87,10 +87,10 @@ var decoders = {
         return parseInt(value, 10);
     },
     KWATT: function(value) {
-        return parseInt(value, 10);
+        return parseInt(value, 16);
     },
     WATT: function(value) {
-        return parseInt(value, 10);
+        return parseInt(value, 16);
     },
     DIST: function(value) {
         return parseInt(value, 10);

@@ -3,7 +3,7 @@
 /** @namespace __dirname */
 /* jshint -W097 */// jshint strict:false
 /*jslint node: true */
-"use strict";
+'use strict';
 
 function getAppName() {
     var parts = __dirname.replace(/\\/g, '/').split('/');

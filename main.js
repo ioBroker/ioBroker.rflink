@@ -70,9 +70,14 @@ adapter.on('message', function (obj) {
                     comm.destroy();
                     comm = null;
                 }
+				
 
                 obj.message = obj.message  || {};
-                obj.message.hex = obj.message.hex || fwLink || __dirname + '/hex/RFLinkR44.cpp.hex';
+                obj.message.hex = obj.message.hex || fwLink;
+				if (!obj.message.hex) {
+					var dirs = require('fs').readdirSync(__dirname + '/hex');
+					if (dirs && dirs.length) obj.message.hex = __dirname + '/hex/' + dirs[0];
+				}
 
                 flash(obj.message, adapter.config, adapter.log, function (err) {
                     if (obj.callback) {
