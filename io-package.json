@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "rflink",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "news": {
-      "1.0.7": {
+      "1.0.8": {
         "en": "fix KWATT calculation for Oregon CM180",
         "de": "Korrigiere KWATT Berechnung für Oregon CM180",
         "ru": "Исправлено вычисление KWATT для Oregon CM180"

@@ -87,7 +87,7 @@ var decoders = {
         return parseInt(value, 10);
     },
     KWATT: function(value) {
-        return parseInt(value, 16);
+        return parseInt(value, 16) / 1000;
     },
     WATT: function(value) {
         return parseInt(value, 16);

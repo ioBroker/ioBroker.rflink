@@ -50,7 +50,7 @@ The user has the possibility to send raw commands to device. Just write you comm
 E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
-### 1.0.7 (2017-01-19)
+### 1.0.8 (2017-01-20)
 * (bluefox) fix KWATT calculation for Oregon CM180
 
 ### 1.0.6 (2016-12-15)
