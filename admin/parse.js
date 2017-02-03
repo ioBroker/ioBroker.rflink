@@ -200,10 +200,10 @@ var encoders = {
         return value.toString();
     },
     KWATT: function(value) {
-        return value.toString();
+        return value.toString(16);
     },
     WATT: function(value) {
-        return value.toString();
+        return value.toString(16);
     },
     DIST: function(value) {
         return value.toString();
@@ -273,6 +273,11 @@ function parseString(rawData) {
             if (pp[1] === 'UP'    || pp[1] === 'DOWN')   frame.blind = true;
             if (pp[1] === 'ALLON' || pp[1] === 'ALLOFF') frame.all   = true;
             if (pp[1] === 'SET_LEVEL')                   frame.set_level = true;
+
+            if (pp[1] === 'STOP') {
+                frame.blind = true;
+                frame.stop  = true;
+            }
         }
     }
     if (!frame.ID) {
@@ -314,7 +319,7 @@ var types = {
 };
 
 var doNotProcess = [
-    'brand', 'ID', 'SWITCH', 'brandRaw', 'blind', 'all', 'set_level', 'dataRaw', 'chime', 'offset', 'factor', 'autoRepair', 'autoRepairProblem'
+    'brand', 'ID', 'SWITCH', 'brandRaw', 'blind', 'stop', 'all', 'set_level', 'dataRaw', 'chime', 'offset', 'factor', 'autoRepair', 'autoRepairProblem'
 ];
 
 function analyseFrame(frame, newId, index) {
@@ -399,6 +404,25 @@ function analyseFrame(frame, newId, index) {
             obj.native.switch = frame.SWITCH;
             obj.native.attr   = attr;
             obj.native.blind  = true;
+            objs.push(obj);
+            
+            // Blind stop
+            obj = {
+                _id:       newId + '.BLIND_STOP_' + frame.SWITCH.toString(),
+                common: {
+                    name:  frame.brandRaw + ' ' + index + ' Blind STOP ' + frame.SWITCH.toString(),
+                    type:  'boolean',
+                    role:  'button',
+                    read:  true,
+                    write: true
+                },
+                native: JSON.parse(JSON.stringify(native)),
+                type:   'state'
+            };
+            obj.native.switch = frame.SWITCH;
+            obj.native.attr   = attr;
+            obj.native.blind  = true;
+            obj.native.stop   = true;
             objs.push(obj);
         } else if (attr === 'RGBW' && frame.SWITCH !== undefined) {
             obj = {
@@ -562,7 +586,9 @@ function stringifyFrame(frame, max) {
     for (var attr in frame) {
         if (doNotProcess.indexOf(attr) !== -1) continue;
         if (attr === 'CMD') {
-            if (frame.blind) {
+            if (frame.stop) {
+                text += (text ? ', ': '') + '<b>BLIND STOP ' + frame.SWITCH + '</b>: ' + frame[attr];
+            } else if (frame.blind) {
                 text += (text ? ', ': '') + '<b>BLIND ' + frame.SWITCH + '</b>: ' + frame[attr];
             } else if (frame.set_level) {
                 text += (text ? ', ': '') + '<b>SET_LEVEL ' + frame.SWITCH + '</b>: ' + frame[attr];
