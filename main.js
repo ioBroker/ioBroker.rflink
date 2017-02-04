@@ -206,7 +206,10 @@ function writeCommand(id, value, callback) {
     } else {
         if (states[id].native.switch !== undefined) command += states[id].native.switch + ';';
 
-        if (states[id].native.blind) {
+        if (states[id].native.stop) {
+            value = 'STOP';
+            command += value + ';';
+        } else if (states[id].native.blind) {
             if (value === 'true' || value === true || value === '1' || value === 1) {
                 value = 'UP';
             } else {

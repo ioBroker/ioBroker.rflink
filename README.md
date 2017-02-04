@@ -50,6 +50,9 @@ The user has the possibility to send raw commands to device. Just write you comm
 E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
+### 1.1.0 (2017-02-03)
+* (bluefox) Add stop for blinds
+
 ### 1.0.8 (2017-01-20)
 * (bluefox) fix KWATT calculation for Oregon CM180
 

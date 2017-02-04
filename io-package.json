@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "rflink",
-    "version": "1.0.8",
+    "version": "1.1.0",
     "news": {
+      "1.1.0": {
+        "en": "Add stop for blinds",
+        "de": "STOP für Rolladen hinzugefügt",
+        "ru": "Добавлен STOP для жалюзей"
+      },
       "1.0.8": {
         "en": "fix KWATT calculation for Oregon CM180",
         "de": "Korrigiere KWATT Berechnung für Oregon CM180",
