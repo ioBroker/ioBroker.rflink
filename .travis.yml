@@ -13,7 +13,7 @@ before_install:
   - 'if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi'
   - 'if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc48; fi'
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CC=clang++; CXX=clang++; export CXXFLAGS=-std=c++11; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CC=g++-4.8; CXX=g++-4.8; export CXXFLAGS=-std=c++0x; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CC=g++-4.8; CXX=g++-4.8; fi
   - echo $CC
   - echo $CXX
   - echo $CXXFLAGS
