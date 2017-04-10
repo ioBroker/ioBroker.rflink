@@ -51,7 +51,7 @@ var decoders = {
         return parseInt(value, 16);
     },
     RAINTOT: function(value) {
-        return parseInt(value, 16);
+        return parseInt(value, 16) / 10;
     },
     WINSP: function(value) {
         return parseInt(value, 16) / 10;
@@ -60,7 +60,7 @@ var decoders = {
         return parseInt(value, 16) / 10;
     },
     WINGS: function(value) {
-        return parseInt(value, 16);
+        return parseInt(value, 16) / 10;
     },
     WINDIR: function(value) {
         return Math.round(parseInt(value) * 10000 / 15) / 100;
