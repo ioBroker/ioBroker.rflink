@@ -48,10 +48,10 @@ var decoders = {
         return value !== 'OK';
     },
     RAIN: function(value) {
-        return parseInt(value, 16);
+        return parseInt(value, 10) / 10;
     },
-    RAINTOT: function(value) {
-        return parseInt(value, 16) / 10;
+    RAINRATE: function(value) {
+        return parseInt(value, 10) / 10;
     },
     WINSP: function(value) {
         return parseInt(value, 16) / 10;
@@ -161,10 +161,10 @@ var encoders = {
         return value;
     },
     RAIN: function(value) {
-        return value.toString(16);
+        return parseInt(value * 10).toString();
     },
-    RAINTOT: function(value) {
-        return value.toString(16);
+    RAINRATE: function(value) {
+        return parseInt(value * 10).toString(16);
     },
     WINSP: function(value) {
         return parseInt(value * 10).toString(16);
@@ -173,7 +173,7 @@ var encoders = {
         return parseInt(value * 10).toString(16);
     },
     WINGS: function(value) {
-        return value.toString(16);
+        return parseInt(value * 10).toString(16);
     },
     WINDIR: function(value) {
         return parseInt(value * 15 / 100).toString();
