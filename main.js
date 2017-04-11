@@ -82,7 +82,7 @@ adapter.on('message', function (obj) {
                 flash(obj.message, adapter.config, adapter.log, function (err) {
                     if (obj.callback) {
                         if (err) adapter.log.error('Cannot flash: ' + err);
-                        adapter.sendTo(obj.from, obj.command, {error: err ? err.message : null}, obj.callback);
+                        adapter.sendTo(obj.from, obj.command, {error: err ? (err.message || err) : null}, obj.callback);
                     } else {
                         if (err) adapter.log.error('Cannot flash: ' + err);
                         obj = null;
