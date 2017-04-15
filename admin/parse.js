@@ -48,7 +48,7 @@ var decoders = {
         return value !== 'OK';
     },
     RAIN: function(value) {
-        return parseInt(value, 10) / 10;
+        return parseInt(value, 16) / 10;
     },
     RAINRATE: function(value) {
         return parseInt(value, 10) / 10;
