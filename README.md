@@ -11,9 +11,6 @@
 This adapter communicates with [rflink](http://www.nemcon.nl/blog2/) build on arduino mega and RFC 433MHz/866MHz/2.6Gz communication.
 Used for receiving the data from weather sensors and wireless power switches.
 
-**Notice: This Adapter currently only supports Node <= 4.x ! Node 6.x+ not supported!**
-
-
 ## Prerequires
 To use serial port on Windows it is VS required to build the binary.
 To use serial port on linux it is build-essential required. To install it just write:
@@ -50,6 +47,9 @@ The user has the possibility to send raw commands to device. Just write you comm
 E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
+### 1.1.5 (2017-05-23)
+* (Apollon77) Upgrade Serialport Library for compatibility to node 6.x
+
 ### 1.1.4 (2017-04-15)
 * (bluefox) Fix the rain calculation
 
