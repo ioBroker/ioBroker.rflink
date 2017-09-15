@@ -118,16 +118,17 @@ describe('Test ' + adapterShortName + ' adapter', function() {
                 });
         });
     });
-/**/
 
-/*
-    PUT YOUR OWN TESTS HERE USING
-    it('Testname', function ( done) {
-        ...
+    it('Test ' + adapterShortName + ': inclusion mode and wait', function (done) {
+        this.timeout(20000);
+
+        states.setState('rflink.0.inclusionOn', {val: 'true', from: 'test.0'}, function (err) {
+            if (err) {
+                console.log(err);
+            }
+            setTimeout(done, 15000);
+        });
     });
-
-    You can also use "sendTo" method to send messages to the started adapter
-*/
 
     after('Test ' + adapterShortName + ' adapter: Stop js-controller', function (done) {
         this.timeout(10000);
