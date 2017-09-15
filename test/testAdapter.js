@@ -120,13 +120,13 @@ describe('Test ' + adapterShortName + ' adapter', function() {
     });
 
     it('Test ' + adapterShortName + ': inclusion mode and wait', function (done) {
-        this.timeout(20000);
+        this.timeout(60000);
 
         states.setState('rflink.0.inclusionOn', {val: 'true', from: 'test.0'}, function (err) {
             if (err) {
                 console.log(err);
             }
-            setTimeout(done, 15000);
+            setTimeout(done, 59000);
         });
     });
 
