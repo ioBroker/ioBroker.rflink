@@ -47,6 +47,9 @@ The user has the possibility to send raw commands to device. Just write you comm
 E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the commands.
 
 ## Changelog
+### 1.1.6 (2017-10-08)
+* (Apollon77) Fix parsing for Wind-Direction
+
 ### 1.1.5 (2017-05-23)
 * (Apollon77) Upgrade Serialport Library for compatibility to node 6.x
 

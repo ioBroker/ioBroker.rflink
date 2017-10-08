@@ -63,7 +63,7 @@ var decoders = {
         return parseInt(value, 16) / 10;
     },
     WINDIR: function(value) {
-        return Math.round(parseInt(value) * 10000 / 15) / 100;
+        return parseInt(value, 10) * 22.5;
     },
     WINCHL: function(value) {
         return parseInt(value, 16);
@@ -405,7 +405,7 @@ function analyseFrame(frame, newId, index) {
             obj.native.attr   = attr;
             obj.native.blind  = true;
             objs.push(obj);
-            
+
             // Blind stop
             obj = {
                 _id:       newId + '.BLIND_STOP_' + frame.SWITCH.toString(),
