@@ -1,183 +1,188 @@
 {
-  "common": {
-    "name": "rflink",
-    "version": "1.1.6",
-    "news": {
-      "1.1.6": {
-        "en": "Fix parsing for Wind-Direction",
-        "de": "Verarbeitung der Windrichtung behoben",
-        "ru": "Fix parsing for Wind-Direction"
-      },
-      "1.1.5": {
-        "en": "Upgrade Serial Library",
-        "de": "Serial Library aktualisiert",
-        "ru": "Upgrade Serial Library"
-      },
-      "1.1.4": {
-        "en": "Fix the rain calculation",
-        "de": "Korrigiere die Berechnugn von Regenniederschlag",
-        "ru": "Исправлено вычисление порывов уровня осадков"
-      },
-	  "1.1.3": {
-        "en": "Allow flash on node.js < 5",
-        "de": "Erlaube Firmware-Schreiben auch für node.js < 5",
-        "ru": "Можно обновлять память на node.js < 5"
-      },
-      "1.1.2": {
-        "en": "Fix the wind gist calculation",
-        "de": "Korrigiere die Berechnugn von Böen",
-        "ru": "Исправлено вычисление порывов ветра"
-      },
-      "1.1.0": {
-        "en": "Add stop for blinds",
-        "de": "STOP für Rolladen hinzugefügt",
-        "ru": "Добавлен STOP для жалюзей"
-      },
-      "1.0.8": {
-        "en": "fix KWATT calculation for Oregon CM180",
-        "de": "Korrigiere KWATT Berechnung für Oregon CM180",
-        "ru": "Исправлено вычисление KWATT для Oregon CM180"
-      },
-      "1.0.6": {
-        "en": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands",
-        "de": "Bibliothek serialport aktualisiert um Kompatibel zu node 6.x zu sein, Unterstützung für MiLightv1 und raw Kommandos",
-        "ru": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands"
-      },
-      "1.0.5": {
-        "en": "Read newest sketch from web",
-        "de": "Lese neue Sketch Version aus dem Web",
-        "ru": "Читать новую версию скетча из интернета"
-      },
-      "1.0.2": {
-        "en": "Flashing of sketch into arduino\nSet_level from 1 to 15",
-        "de": "Schreiben von Sketch ins Arduino\nSetzte set_level von 1 bis 15",
-        "ru": "Запись скетча в Arduino\nУровент set_level от 1 до 15"
-      },
-      "0.2.1": {
-        "en": "Fix for SET_LEVEL",
-        "de": "Korrigiere SET_LEVEL Steuerung",
-        "ru": "Исправлена команда SET_LEVEL"
-      },
-      "0.2.0": {
-        "en": "Fix write of commands",
-        "de": "Korrigiere die Steuerung",
-        "ru": "Исправлена посылка команд приборам"
-      },
-      "0.1.4": {
-        "en": "Fix the last changed time indication",
-        "de": "Korrigiere die Anzeige für letzte Änderung",
-        "ru": "Исправлено обновление времени последнего изменения"
-      },
-      "0.1.3": {
-        "en": "initial commit",
-        "de": "Erste Version",
-        "ru": "Первая версия"
-      }
+    "common": {
+        "name": "rflink",
+        "version": "1.1.6",
+        "news": {
+            "1.1.6": {
+                "en": "Fix parsing for Wind-Direction",
+                "de": "Verarbeitung der Windrichtung behoben",
+                "ru": "Fix parsing for Wind-Direction"
+            },
+            "1.1.5": {
+                "en": "Upgrade Serial Library",
+                "de": "Serial Library aktualisiert",
+                "ru": "Upgrade Serial Library"
+            },
+            "1.1.4": {
+                "en": "Fix the rain calculation",
+                "de": "Korrigiere die Berechnugn von Regenniederschlag",
+                "ru": "Исправлено вычисление порывов уровня осадков"
+            },
+            "1.1.3": {
+                "en": "Allow flash on node.js < 5",
+                "de": "Erlaube Firmware-Schreiben auch für node.js < 5",
+                "ru": "Можно обновлять память на node.js < 5"
+            },
+            "1.1.2": {
+                "en": "Fix the wind gist calculation",
+                "de": "Korrigiere die Berechnugn von Böen",
+                "ru": "Исправлено вычисление порывов ветра"
+            },
+            "1.1.0": {
+                "en": "Add stop for blinds",
+                "de": "STOP für Rolladen hinzugefügt",
+                "ru": "Добавлен STOP для жалюзей"
+            },
+            "1.0.8": {
+                "en": "fix KWATT calculation for Oregon CM180",
+                "de": "Korrigiere KWATT Berechnung für Oregon CM180",
+                "ru": "Исправлено вычисление KWATT для Oregon CM180"
+            },
+            "1.0.6": {
+                "en": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands",
+                "de": "Bibliothek serialport aktualisiert um Kompatibel zu node 6.x zu sein, Unterstützung für MiLightv1 und raw Kommandos",
+                "ru": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands"
+            },
+            "1.0.5": {
+                "en": "Read newest sketch from web",
+                "de": "Lese neue Sketch Version aus dem Web",
+                "ru": "Читать новую версию скетча из интернета"
+            },
+            "1.0.2": {
+                "en": "Flashing of sketch into arduino\nSet_level from 1 to 15",
+                "de": "Schreiben von Sketch ins Arduino\nSetzte set_level von 1 bis 15",
+                "ru": "Запись скетча в Arduino\nУровент set_level от 1 до 15"
+            },
+            "0.2.1": {
+                "en": "Fix for SET_LEVEL",
+                "de": "Korrigiere SET_LEVEL Steuerung",
+                "ru": "Исправлена команда SET_LEVEL"
+            },
+            "0.2.0": {
+                "en": "Fix write of commands",
+                "de": "Korrigiere die Steuerung",
+                "ru": "Исправлена посылка команд приборам"
+            },
+            "0.1.4": {
+                "en": "Fix the last changed time indication",
+                "de": "Korrigiere die Anzeige für letzte Änderung",
+                "ru": "Исправлено обновление времени последнего изменения"
+            },
+            "0.1.3": {
+                "en": "initial commit",
+                "de": "Erste Version",
+                "ru": "Первая версия"
+            }
+        },
+        "title": "RFLink adapter",
+        "desc": {
+            "en": "ioBroker RFLink Adapter",
+            "de": "ioBroker RFLink Adapter",
+            "ru": "ioBroker RFLink драйвер "
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "rflink.png",
+        "license": "MIT",
+        "enabled": true,
+        "messagebox": true,
+        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
+        "keywords": [
+            "RFLink",
+            "arduino mega"
+        ],
+        "readme": "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",
+        "loglevel": "info",
+        "stopBeforeUpdate": true,
+        "type": "iot-systems",
+        "authors": [
+            {
+                "name": "bluefox",
+                "email": "dogafox@gmail.com"
+            }
+        ]
     },
-    "title": "RFLink adapter",
-    "desc": {
-      "en": "ioBroker RFLink Adapter",
-      "de": "ioBroker RFLink Adapter",
-      "ru": "ioBroker RFLink драйвер "
+    "native": {
+        "comName": "",
+        "board": "mega",
+        "connTimeout": 600000,
+        "baudRate": 57600,
+        "inclusionTimeout": 300000
     },
-    "platform":   "Javascript/Node.js",
-    "mode":       "daemon",
-    "icon":       "rflink.png",
-    "license":    "MIT",
-    "enabled":    true,
-    "messagebox": true,
-    "extIcon":    "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
-    "keywords": [
-      "RFLink",
-      "arduino mega"
-    ],
-    "readme":     "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",
-    "loglevel":   "info",
-    "stopBeforeUpdate": true,
-    "type":       "hardware"
-  },
-  "native": {
-    "comName":          "",
-    "board":            "mega",
-    "connTimeout":      600000,
-    "baudRate":         57600,
-    "inclusionTimeout": 300000
-  },
-  "objects": [
-  ],
-  "instanceObjects": [
-    {
-      "_id":  "info",
-      "type": "channel",
-      "common": {
-        "name": "Information"
-      },
-      "native": {}
-    },
-    {
-      "_id":  "info.connection",
-      "type": "state",
-      "common": {
-        "role":  "indicator.connected",
-        "name":  "If connected to RFLink",
-        "type":  "boolean",
-        "read":  true,
-        "write": false,
-        "def":   false
-      },
-      "native": {}
-    },
-    {
-      "_id":  "inclusionOn",
-      "type": "state",
-      "common": {
-        "role":  "state",
-        "name":  "Inclusion mode activated",
-        "desc":  "If inclusion mode on or off",
-        "type":  "boolean",
-        "read":  true,
-        "write": true
-      },
-      "native": {}
-    },
-    {
-      "_id":  "rawData",
-      "type": "state",
-      "common": {
-        "role":  "state",
-        "name":  "raw rx data",
-        "desc":  "Last received data",
-        "type":  "string",
-        "read":  true,
-        "write": true
-      },
-      "native": {}
-    },
-    {
-      "_id":  "firmwareVersion",
-      "type": "state",
-      "common": {
-        "role":  "state",
-        "name":  "Firmware version",
-        "desc":  "Actual firmware version",
-        "type":  "string",
-        "read":  true,
-        "write": false
-      },
-      "native": {}
-    },
-    {
-      "_id":  "availableVersion",
-      "type": "state",
-      "common": {
-        "role":  "state",
-        "name":  "Available firmware version",
-        "desc":  "Latest firmware version",
-        "type":  "string",
-        "read":  true,
-        "write": false
-      },
-      "native": {}
-    }
-  ]
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "If connected to RFLink",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "inclusionOn",
+            "type": "state",
+            "common": {
+                "role": "state",
+                "name": "Inclusion mode activated",
+                "desc": "If inclusion mode on or off",
+                "type": "boolean",
+                "read": true,
+                "write": true
+            },
+            "native": {}
+        },
+        {
+            "_id": "rawData",
+            "type": "state",
+            "common": {
+                "role": "state",
+                "name": "raw rx data",
+                "desc": "Last received data",
+                "type": "string",
+                "read": true,
+                "write": true
+            },
+            "native": {}
+        },
+        {
+            "_id": "firmwareVersion",
+            "type": "state",
+            "common": {
+                "role": "state",
+                "name": "Firmware version",
+                "desc": "Actual firmware version",
+                "type": "string",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "availableVersion",
+            "type": "state",
+            "common": {
+                "role": "state",
+                "name": "Available firmware version",
+                "desc": "Latest firmware version",
+                "type": "string",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        }
+    ]
 }
