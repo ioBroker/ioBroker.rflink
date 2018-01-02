@@ -14,7 +14,7 @@ try {
     console.error('Cannot load serialport module');
 }
 
-var adapter      = utils.adapter('rflink');
+var adapter      = utils.Adapter('rflink');
 var channels     = {};
 var states       = {};
 var inclusionOn  = false;
