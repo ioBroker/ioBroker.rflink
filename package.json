@@ -28,7 +28,7 @@
     "avrgirl-arduino": "^1.9.8"
   },
   "dependencies": {
-    "serialport": "^4.0.7",
+    "serialport": "^6.0.4",
     "request": "^2.76.0"
   },
   "devDependencies": {
