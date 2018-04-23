@@ -190,10 +190,13 @@
     var values   = {};
     var problems = [];
     var timers   = [];
-    var availableVersion = null;
     var fwLink   = '';
+    var counter  = 0;
 
     function getComPorts(actualValue) {
+        counter++;
+        if (counter > 20) return;
+
         timeout = setTimeout(function () {
             getComPorts(actualValue);
         }, 2000);
@@ -224,12 +227,13 @@
     }
 
     function setValue(id, value, onChange) {
-        if ($('#' + id + '.value').attr('type') === 'checkbox') {
-            $('#' + id + '.value').prop('checked', value).change(function () {
+        var $value = $('#' + id + '.value');
+        if ($value.attr('type') === 'checkbox') {
+            $value.prop('checked', value).change(function () {
                 onChange();
             });
         } else {
-            $('#' + id + '.value').val(value).change(function () {
+            $value.val(value).change(function () {
                 onChange();
             }).keyup(function () {
                 // Check that only numbers entered
