@@ -1,11 +1,11 @@
 var decoders = {
-    ID: function(value) {
+    ID: function (value) {
         return parseInt(value, 16);
     },
-    SWITCH: function(value) {
+    SWITCH: function (value) {
         return value;
     },
-    CMD: function(value) {
+    CMD: function (value) {
         if (value.indexOf('SET_LEVEL') !== -1) {
             return parseInt(value.split('=')[1], 10);
         } else {
@@ -13,101 +13,103 @@ var decoders = {
             return value.indexOf('ON') !== -1;
         }
     },
-    SET_LEVEL: function(value) {
+    SET_LEVEL: function (value) {
         var result;
         result = parseInt(value, 10);
         result = Math.max(1, Math.min(15, result));
         return result;
     },
-    TEMP: function(value) {
+    TEMP: function (value) {
         var result;
         result = parseInt(value, 16);
-        if (result >= 32768) result = 32768 - result;
+        if (result >= 0x8000) {
+            result = -1 * (result - 0x8000);
+        }
         return result / 10;
     },
-    HUM: function(value) {
+    HUM: function (value) {
         if (value === 'cc') return null;
         return parseInt(value, 10);
     },
-    BARO: function(value) {
+    BARO: function (value) {
         return parseInt(value, 16);
     },
-    HSTATUS: function(value) {
+    HSTATUS: function (value) {
         return parseInt(value, 10);
     },
-    BFORECAST: function(value) {
+    BFORECAST: function (value) {
         return parseInt(value, 10);
     },
-    UV: function(value) {
+    UV: function (value) {
         return parseInt(value, 16);
     },
-    LUX: function(value) {
+    LUX: function (value) {
         return parseInt(value, 16);
     },
-    BAT: function(value) {
+    BAT: function (value) {
         return value !== 'OK';
     },
-    RAIN: function(value) {
+    RAIN: function (value) {
         return parseInt(value, 16) / 10;
     },
-    RAINRATE: function(value) {
+    RAINRATE: function (value) {
         return parseInt(value, 10) / 10;
     },
-    WINSP: function(value) {
+    WINSP: function (value) {
         return parseInt(value, 16) / 10;
     },
-    AWINSP: function(value) {
+    AWINSP: function (value) {
         return parseInt(value, 16) / 10;
     },
-    WINGS: function(value) {
+    WINGS: function (value) {
         return parseInt(value, 16) / 10;
     },
-    WINDIR: function(value) {
+    WINDIR: function (value) {
         return parseInt(value, 10) * 22.5;
     },
-    WINCHL: function(value) {
+    WINCHL: function (value) {
         return parseInt(value, 16);
     },
-    WINTMP: function(value) {
+    WINTMP: function (value) {
         return parseInt(value, 16);
     },
-    CHIME: function(value) {
+    CHIME: function (value) {
         return parseInt(value);
     },
-    SMOKEALERT: function(value) {
+    SMOKEALERT: function (value) {
         return (value === 'ON');
     },
-    PIR: function(value) {
+    PIR: function (value) {
         return (value === 'ON');
     },
-    CO2: function(value) {
+    CO2: function (value) {
         return parseInt(value, 10);
     },
-    SOUND: function(value) {
+    SOUND: function (value) {
         return parseInt(value, 10);
     },
-    KWATT: function(value) {
+    KWATT: function (value) {
         return parseInt(value, 16) / 1000;
     },
-    WATT: function(value) {
+    WATT: function (value) {
         return parseInt(value, 16);
     },
-    DIST: function(value) {
+    DIST: function (value) {
         return parseInt(value, 10);
     },
-    METER: function(value) {
+    METER: function (value) {
         return parseInt(value, 10);
     },
-    VOLT: function(value) {
+    VOLT: function (value) {
         return parseInt(value, 10);
     },
-    CURRENT: function(value) {
+    CURRENT: function (value) {
         return parseInt(value, 10);
     }
 };
 
 var encoders = {
-    ID: function(value) {
+    ID: function (value) {
         var stringVal;
         stringVal = value.toString(16);
         if (stringVal.length < 6) {
@@ -116,10 +118,10 @@ var encoders = {
             return stringVal;
         }
     },
-    SWITCH: function(value) {
+    SWITCH: function (value) {
         return value;
     },
-    CMD: function(value, isBlind) {
+    CMD: function (value, isBlind) {
         if (value === true || value === 'true') {
             return isBlind ? 'UP' : 'ON';
         } else if (value === false || value === 'false') {
@@ -128,93 +130,94 @@ var encoders = {
             return value.toString();
         }
     },
-    SET_LEVEL: function(value) {
+    SET_LEVEL: function (value) {
         return 'SET_LEVEL=' + (parseInt(value, 10) || 1);
     },
-    TEMP: function(value) {
+    TEMP: function (value) {
         var result;
-        result = value.toString(16);
-        if (result >= 32768) {
-            result = 32768 - result;
+        result = Math.round(value * 10);
+        if (result < 0) {
+            result = -1 * result;
+            result = 0x8000 + result;
         }
-        return result / 10.0;
+        return ('0000' + result.toString(16)).slice(-4);
     },
-    HUM: function(value) {
+    HUM: function (value) {
         return value.toString();
     },
-    BARO: function(value) {
+    BARO: function (value) {
         return value.toString(16);
     },
-    HSTATUS: function(value) {
+    HSTATUS: function (value) {
         return value.toString();
     },
-    BFORECAST: function(value) {
+    BFORECAST: function (value) {
         return value.toString();
     },
-    UV: function(value) {
+    UV: function (value) {
         return value.toString(16);
     },
-    LUX: function(value) {
+    LUX: function (value) {
         return value.toString(16);
     },
-    BAT: function(value) {
+    BAT: function (value) {
         return value;
     },
-    RAIN: function(value) {
+    RAIN: function (value) {
         return parseInt(value * 10).toString();
     },
-    RAINRATE: function(value) {
+    RAINRATE: function (value) {
         return parseInt(value * 10).toString(16);
     },
-    WINSP: function(value) {
+    WINSP: function (value) {
         return parseInt(value * 10).toString(16);
     },
-    AWINSP: function(value) {
+    AWINSP: function (value) {
         return parseInt(value * 10).toString(16);
     },
-    WINGS: function(value) {
+    WINGS: function (value) {
         return parseInt(value * 10).toString(16);
     },
-    WINDIR: function(value) {
+    WINDIR: function (value) {
         return parseInt(value * 15 / 100).toString();
     },
-    WINCHL: function(value) {
+    WINCHL: function (value) {
         return value.toString(16);
     },
-    WINTMP: function(value) {
+    WINTMP: function (value) {
         return value.toString(16);
     },
-    CHIME: function(value) {
+    CHIME: function (value) {
         return value.toString();
     },
-    SMOKEALERT: function(value) {
+    SMOKEALERT: function (value) {
         return value;
     },
-    PIR: function(value) {
+    PIR: function (value) {
         return value;
     },
-    CO2: function(value) {
+    CO2: function (value) {
         return value.toString();
     },
-    SOUND: function(value) {
+    SOUND: function (value) {
         return value.toString();
     },
-    KWATT: function(value) {
+    KWATT: function (value) {
         return value.toString(16);
     },
-    WATT: function(value) {
+    WATT: function (value) {
         return value.toString(16);
     },
-    DIST: function(value) {
+    DIST: function (value) {
         return value.toString();
     },
-    METER: function(value) {
+    METER: function (value) {
         return value.toString();
     },
-    VOLT: function(value) {
+    VOLT: function (value) {
         return value.toString();
     },
-    CURRENT: function(value) {
+    CURRENT: function (value) {
         return value.toString();
     }
 };

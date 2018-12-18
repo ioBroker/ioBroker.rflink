@@ -1,6 +1,6 @@
 {
   "name": "iobroker.rflink",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "ioBroker RFLink Adapter",
   "author": {
     "name": "bluefox",
@@ -29,16 +29,12 @@
   },
   "dependencies": {
     "serialport": "^6.0.4",
-    "request": "^2.76.0"
+    "request": "^2.88.0"
   },
   "devDependencies": {
-    "grunt": "^1.0.1",
-    "grunt-replace": "^1.0.1",
-    "grunt-contrib-jshint": "^1.1.0",
-    "grunt-jscs": "^3.0.1",
-    "grunt-http": "^2.2.0",
-    "mocha": "^4.1.0",
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
+    "gulp": "^4.0.0",
+    "mocha": "^5.2.0"
     "nan": "2.4.0"
   },
   "bugs": {

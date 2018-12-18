@@ -3,10 +3,10 @@
 'use strict';
 
 // you have to require the utils module and call adapter function
-var utils        = require(__dirname + '/lib/utils'); // Get common adapter utils
-var serialport;
-var Parses       = require(__dirname + '/admin/parse.js');
-var Serial       = process.env.DEBUG ? require(__dirname + '/lib/debug.js') : require(__dirname + '/lib/serial.js');
+const utils        = require('./lib/utils'); // Get common adapter utils
+const Parses       = require('./admin/parse.js');
+const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./lib/serial.js');
+let  serialport;
 
 try {
     serialport = require('serialport');
@@ -14,27 +14,27 @@ try {
     console.error('Cannot load serialport module');
 }
 
-var adapter      = utils.Adapter('rflink');
-var channels     = {};
-var states       = {};
-var inclusionOn  = false;
-var inclusionTimeout = false;
-var addQueue     = [];
-var lastReceived = {};
-var repairInterval = null;
-var skipFirst    = true;
-var flash        = require(__dirname + '/lib/flash.js');
-var comm;
-var fwLink;
+const adapter      = utils.Adapter('rflink');
+let channels       = {};
+let states         = {};
+let inclusionOn    = false;
+let inclusionTimeout = false;
+const addQueue     = [];
+const lastReceived = {};
+let repairInterval = null;
+let skipFirst      = true;
+const flash        = require('./lib/flash.js');
+let comm;
+let fwLink;
 
-adapter.on('message', function (obj) {
+adapter.on('message', obj => {
     if (obj) {
         switch (obj.command) {
             case 'listUart':
                 if (obj.callback) {
                     if (serialport) {
                         // read all found serial ports
-                        serialport.list(function (err, ports) {
+                        serialport.list((err, ports) => {
                             adapter.log.info('List of port: ' + JSON.stringify(ports));
                             adapter.sendTo(obj.from, obj.command, ports, obj.callback);
                         });
@@ -47,9 +47,9 @@ adapter.on('message', function (obj) {
                 break;
 
             case 'readNewVersion':
-                var request      = require('request');
-                request('http://www.nemcon.nl/blog2/fw/iob/update.jsp', function (error, message, data) {
-                    var m;
+                const request      = require('request');
+                request('http://www.nemcon.nl/blog2/fw/iob/update.jsp', (error, message, data) => {
+                    let m;
                     if ((m = data.match(/iob\/(\d+)\/RFLink\.cpp\.hex/))) {
                         adapter.setState('availableVersion', m[1], true);
                     }
@@ -75,11 +75,13 @@ adapter.on('message', function (obj) {
                 obj.message = obj.message  || {};
                 obj.message.hex = obj.message.hex || fwLink;
 				if (!obj.message.hex) {
-					var dirs = require('fs').readdirSync(__dirname + '/hex');
-					if (dirs && dirs.length) obj.message.hex = __dirname + '/hex/' + dirs[0];
+					const dirs = require('fs').readdirSync(__dirname + '/hex');
+					if (dirs && dirs.length) {
+					    obj.message.hex = __dirname + '/hex/' + dirs[0];
+                    }
 				}
 
-                flash(obj.message, adapter.config, adapter.log, function (err) {
+                flash(obj.message, adapter.config, adapter.log, err => {
                     if (obj.callback) {
                         if (err) adapter.log.error('Cannot flash: ' + err);
                         adapter.sendTo(obj.from, obj.command, {error: err ? (err.message || err) : null}, obj.callback);
@@ -125,10 +127,10 @@ adapter.on('stateChange', function (id, state) {
 
     if (id === adapter.namespace + '.rawData') {
         // write raw command
-        setTimeout(function (cmd) {
+        setTimeout(cmd => {
             adapter.log.debug('Write: ' + cmd);
             if (comm) {
-                comm.write(cmd, function (err) {
+                comm.write(cmd, err => {
                     if (err) adapter.log.error('Cannot write "' + cmd + '": ' + err);
                     cmd = null;
                 });
@@ -137,19 +139,16 @@ adapter.on('stateChange', function (id, state) {
     } else
     if (id === adapter.namespace + '.inclusionOn') {
         setInclusionState(state.val);
-        setTimeout(function (val) {
-            adapter.setState('inclusionOn', val, true);
-        }, 200, state.val);
+        setTimeout(val => adapter.setState('inclusionOn', val, true), 200, state.val);
     } else
     // output to rflink
     if (states[id] && states[id].common.write) {
-        writeCommand(id, state.val, function (err) {
-            if (err) adapter.log.error('Cannot write "' + id + '": ' + err);
-        });
+        writeCommand(id, state.val, err =>
+            err && adapter.log.error('Cannot write "' + id + '": ' + err));
     }
 });
 
-adapter.on('objectChange', function (id, obj) {
+adapter.on('objectChange', (id, obj) => {
     if (!obj) {
         if (channels[id])     delete channels[id];
         if (states[id])       delete states[id];
@@ -171,14 +170,12 @@ adapter.on('objectChange', function (id, obj) {
     }
 });
 
-adapter.on('ready', function () {
-    main();
-});
+adapter.on('ready', () => main());
 
-var presentationDone = false;
+let presentationDone = false;
 
 function writeCommand(id, value, callback) {
-    var command = '10;' + states[id].native.brand + ';' + Parses.encodeValue('ID', states[id].native.ID) + ';';
+    let command = '10;' + states[id].native.brand + ';' + Parses.encodeValue('ID', states[id].native.ID) + ';';
 
     if (states[id].native.attr === 'COLOR') {
         value = value.toString(16);
@@ -204,7 +201,9 @@ function writeCommand(id, value, callback) {
         }
         command += '00;3c00;' + value + ';';
     } else {
-        if (states[id].native.switch !== undefined) command += states[id].native.switch + ';';
+        if (states[id].native.switch !== undefined) {
+            command += states[id].native.switch + ';';
+        }
 
         if (states[id].native.stop) {
             value = 'STOP';
@@ -249,13 +248,17 @@ function setInclusionState(val) {
     val = val === 'true' || val === true || val === 1 || val === '1';
     inclusionOn = val;
 
-    if (inclusionTimeout) clearTimeout(inclusionTimeout);
+    if (inclusionTimeout) {
+        clearTimeout(inclusionTimeout);
+    }
     inclusionTimeout = null;
 
-    if (inclusionOn) presentationDone = false;
+    if (inclusionOn) {
+        presentationDone = false;
+    }
 
     if (inclusionOn && adapter.config.inclusionTimeout) {
-        inclusionTimeout = setTimeout(function () {
+        inclusionTimeout = setTimeout(() => {
             inclusionOn = false;
             adapter.setState('inclusionOn', false, true);
         }, adapter.config.inclusionTimeout);
@@ -264,11 +267,13 @@ function setInclusionState(val) {
 
 //20;12;Cresta;ID=4D02;TEMP=00c9;HUM=57;BAT=OK;
 function addNewDevice(frame, attrs, callback) {
-    var channelObj;
+    let channelObj;
+    let index = 0;
+    let newId;
 
     if (frame.SWITCH !== undefined) {
         // try to find existing channel
-        for (id in channels) {
+        for (const id in channels) {
             if (!channels.hasOwnProperty(id) || !channels[id].native) continue;
 
             // If device suits to it
@@ -286,8 +291,7 @@ function addNewDevice(frame, attrs, callback) {
     // add new device
     if (!channelObj) {
         // find unique ID
-        var index = 0;
-        var newId;
+        index = 0;
         do {
             index++;
             newId = adapter.namespace + '.channels.' + frame.brand + '_' + index;
@@ -310,10 +314,10 @@ function addNewDevice(frame, attrs, callback) {
         };
     }
 
-    var objs = Parses.analyseFrame(frame, newId, index);
+    let objs = Parses.analyseFrame(frame, newId, index);
 
     // analyse if some switches are there
-    for (var id in objs) {
+    for (const id in objs) {
         if (!objs.hasOwnProperty(id)) continue;
         if (objs[id].native.switch !== undefined) {
             channelObj.native.switches = channelObj.native.switches || [];
@@ -329,7 +333,7 @@ function addNewDevice(frame, attrs, callback) {
         if (!_objs || !_objs.length) {
             adapter.log.info('done ' + newId);
 
-            for (var i = 0; i < objs.length; i++) {
+            for (let i = 0; i < objs.length; i++) {
                 if (objs[i].type === 'state') {
                     states[objs[i]._id] = objs[i];
                 } else {
@@ -341,12 +345,12 @@ function addNewDevice(frame, attrs, callback) {
 
             callback && callback();
         } else {
-            var obj = _objs.pop();
-            adapter.getForeignObject(obj._id, function (err, oldObj) {
+            const obj = _objs.pop();
+            adapter.getForeignObject(obj._id, (err, oldObj) => {
                 if (!oldObj) {
-                    setTimeout(function () {
+                    setTimeout(() => {
                         adapter.log.info('Add ' + obj._id);
-                        adapter.setForeignObject(obj._id, obj, function () {
+                        adapter.setForeignObject(obj._id, obj, () => {
                             if (frame[obj.native.attr] !== undefined) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
 
@@ -354,9 +358,7 @@ function addNewDevice(frame, attrs, callback) {
                                     frame[obj.native.attr] = obj.native.factor * frame[obj.native.attr] + obj.native.offset;
                                 }
                                 //adapter.setState('rawData', frame.dataRaw, true);
-                                adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
-                                    insertObjs(_objs);
-                                });
+                                adapter.setForeignState(obj._id, frame[obj.native.attr], true, () => insertObjs(_objs));
                             } else {
                                 insertObjs(_objs);
                             }
@@ -369,7 +371,7 @@ function addNewDevice(frame, attrs, callback) {
                         if (!obj.native.switches) {
                             adapter.log.error('Commands are different for ' + obj._id + ': ' + obj.native.attrs + ' <> ' + oldObj.native.attrs);
                         } else {
-                            for (var s = 0; s < obj.native.switches.length; s++) {
+                            for (let s = 0; s < obj.native.switches.length; s++) {
                                 if (oldObj.native.switches.indexOf(obj.native.switches[s]) === -1) oldObj.native.switches.push(obj.native.switches[s]);
                             }
                             obj.native.switches = oldObj.native.switches;
@@ -381,8 +383,8 @@ function addNewDevice(frame, attrs, callback) {
                     if (oldObj.native.autoRepair !== undefined) obj.native.autoRepair = oldObj.native.autoRepair;
 
                     oldObj.native = obj.native;
-                    setTimeout(function () {
-                        adapter.setForeignObject(oldObj._id, oldObj, function () {
+                    setTimeout(() => {
+                        adapter.setForeignObject(oldObj._id, oldObj, () => {
                             if (frame[obj.native.attr] !== undefined) {
                                 adapter.log.debug('Set state "' + obj._id + '": ' + frame[obj.native.attr]);
 
@@ -410,18 +412,17 @@ function addNewDevice(frame, attrs, callback) {
 function processAdd() {
     if (!addQueue.length) return;
 
-    var frame = addQueue[0];
-    processFrame(frame, true, function () {
-        setTimeout(function () {
+    const frame = addQueue[0];
+    processFrame(frame, true, () =>
+        setTimeout(() => {
             addQueue.shift();
             processAdd();
-        }, 100);
-    });
+        }, 100));
 }
 
 function processFrame(frame, isAdd, callback) {
     adapter.setState('rawData', frame.dataRaw, true);
-    var id;
+    let id;
     for (id in channels) {
         if (!channels.hasOwnProperty(id) || !channels[id].native) continue;
 
@@ -437,7 +438,7 @@ function processFrame(frame, isAdd, callback) {
 
             // try to find state
             if (frame.SWITCH !== undefined) {
-                var stateId;
+                let stateId;
                 if (frame.blind) {
                     stateId = id + '.BLIND_' + frame.SWITCH;
                 } else if (frame.all) {
@@ -454,7 +455,7 @@ function processFrame(frame, isAdd, callback) {
                     adapter.log.debug('Set state "' + stateId + '": ' + frame.CMD);
 
                     (function (__id) {
-                        adapter.setForeignState(stateId, frame.CMD, true, function (err) {
+                        adapter.setForeignState(stateId, frame.CMD, true, _err => {
                             if (states[__id + '.RGBW_' + frame.SWITCH] && frame.RGBW !== undefined) {
                                 adapter.log.debug('Set state "' + __id + '.RGBW_' + frame.SWITCH + '": ' + frame.RGBW);
                                 adapter.setForeignState(__id + '.RGBW_' + frame.SWITCH, frame.RGBW, true, function () {
@@ -471,13 +472,15 @@ function processFrame(frame, isAdd, callback) {
                         });
                     })(id);
 
-                    if (lastReceived[id]) lastReceived[id] = new Date().getTime();
+                    if (lastReceived[id]) {
+                        lastReceived[id] = new Date().getTime();
+                    }
 
                     return;
                 }
             } else {
-                var count = 0;
-                for (var _attr in frame) {
+                let count = 0;
+                for (const _attr in frame) {
                     if (!frame.hasOwnProperty(_attr)) continue;
                     if (Parses.doNotProcess.indexOf(_attr) !== -1) continue;
 
@@ -489,7 +492,7 @@ function processFrame(frame, isAdd, callback) {
                             frame[_attr] = states[id + '.' + _attr].native.factor * frame[_attr] + states[id + '.' + _attr].native.offset;
                         }
 
-                        adapter.setForeignState(id + '.' + _attr, frame[_attr], true, function () {
+                        adapter.setForeignState(id + '.' + _attr, frame[_attr], true, () => {
                             if (!--count && callback) callback();
                         });
                     }
@@ -501,9 +504,9 @@ function processFrame(frame, isAdd, callback) {
             }
         }
     }
-    var attrs = [];
-    for (var attr in frame) {
-        if (!frame.hasOwnProperty(attr))continue;
+    let attrs = [];
+    for (const attr in frame) {
+        if (!frame.hasOwnProperty(attr)) continue;
         if (Parses.doNotProcess.indexOf(attr) !== -1) continue;
         attrs.push(attr);
     }
@@ -512,7 +515,7 @@ function processFrame(frame, isAdd, callback) {
 
     // pairs
     // find in pairs suitable device
-    for (var j in channels) {
+    for (const j in channels) {
         if (!channels.hasOwnProperty(j) || !channels[j].native) continue;
 
         // If device suits to it
@@ -526,8 +529,8 @@ function processFrame(frame, isAdd, callback) {
             channels[j].native.ID   = frame.ID;
             if (channels[j].native.autoPairProblem !== undefined) delete channels[j].native.autoPairProblem;
 
-            adapter.setForeignObject(j, channels[j], function (err) {
-                if (err) adapter.log.error('Cannot set object : ' + err);
+            adapter.setForeignObject(j, channels[j], err => {
+                err && adapter.log.error('Cannot set object : ' + err);
                 processFrame(frame, isAdd, callback);
             });
             return;
@@ -535,9 +538,9 @@ function processFrame(frame, isAdd, callback) {
     }
 
     // autoPairs
-    var pairs      = [];
-    var autoRepair = [];
-    for (var __id in channels) {
+    const pairs      = [];
+    const autoRepair = [];
+    for (const __id in channels) {
         if (!channels.hasOwnProperty(__id) || !channels[__id].native) continue;
 
         // If device suits to it
@@ -557,20 +560,19 @@ function processFrame(frame, isAdd, callback) {
         if (channels[pairs[0]].native.autoPairProblem !== undefined) delete channels[pairs[0]].native.autoPairProblem;
         channels[pairs[0]].native.ID = frame.ID;
 
-        adapter.setForeignObject(pairs[0], channels[pairs[0]], function (err) {
-            if (err) adapter.log.error('Cannot set object: ' + err);
+        adapter.setForeignObject(pairs[0], channels[pairs[0]], err => {
+            err && adapter.log.error('Cannot set object: ' + err);
             processFrame(frame, isAdd, callback);
         });
         return;
     } else if (pairs.length > 1 && autoRepair.length) {
         // Problem more than one device suits to it
         adapter.log.warn('Cannot auto pair because following sensors have similar parameters: ' + pairs.join(', '));
-        for (var i = 0; i < pairs.length; i++) {
+        for (let i = 0; i < pairs.length; i++) {
             if (!channels[pairs[i]].native.autoPairProblem) {
                 channels[pairs[i]].native.autoPairProblem = true;
-                adapter.setForeignObject(pairs[i], channels[pairs[i]], function (err) {
-                    if (err) adapter.log.error('Cannot set object: ' + err);
-                });
+                adapter.setForeignObject(pairs[i], channels[pairs[i]], err =>
+                    err && adapter.log.error('Cannot set object: ' + err));
             }
         }
         return;
@@ -592,7 +594,7 @@ function processFrame(frame, isAdd, callback) {
 }
 
 function start(doNotSendStart) {
-    comm = new Serial(adapter.config, adapter.log, function (err) {
+    comm = new Serial(adapter.config, adapter.log, err => {
         // done
         if (err) {
             adapter.log.error('Cannot open port: ' + err);
@@ -600,17 +602,17 @@ function start(doNotSendStart) {
             if (comm && !doNotSendStart) comm.write('10;REBOOT;');
         }
     });
-    comm.on('connectionChange', function (connected) {
+    comm.on('connectionChange', connected => {
         if (!connected) skipFirst = true;
         adapter.setState('info.connection', connected, true);
     });
-    comm.on('data', function (data) {
-        var frame = Parses.parseString(data);
+    comm.on('data', data => {
+        const frame = Parses.parseString(data);
         if (frame && !skipFirst) {
             processFrame(frame);
         } else {
             adapter.setState('rawData', data, true);
-            var m = data.match(/RFLink\sGateway\s(.+);/);
+            const m = data.match(/RFLink\sGateway\s(.+);/);
             if (m) {
                 adapter.setState('firmwareVersion', m[1], true);
             }
@@ -623,8 +625,8 @@ function start(doNotSendStart) {
 // deactivated
 /*
  function checkAutoRepair() {
- var now = new Date().getTime();
- for (var id in channels) {
+ const now = new Date().getTime();
+ for (const id in channels) {
  if (!lastReceived[id]) return;
  if (!channels.hasOwnProperty(id)) continue;
 
@@ -639,28 +641,29 @@ function start(doNotSendStart) {
 function main() {
     adapter.config.inclusionTimeout = parseInt(adapter.config.inclusionTimeout, 10) || 0;
 
-    adapter.getState('inclusionOn', function (err, state) {
-        setInclusionState(state ? state.val : false);
-    });
+    adapter.getState('inclusionOn', (err, state) =>
+        setInclusionState(state ? state.val : false));
 
     adapter.setState('info.connection', false, true);
 
     // read current existing objects (прочитать текущие существующие объекты)
-    adapter.getForeignObjects(adapter.namespace + '.*', 'state', function (err, _states) {
+    adapter.getForeignObjects(adapter.namespace + '.*', 'state', (err, _states) => {
         states = _states;
-        adapter.getForeignObjects(adapter.namespace + '.*', 'channel', function (err, _channels) {
+        adapter.getForeignObjects(adapter.namespace + '.*', 'channel', (err, _channels) => {
             channels = _channels;
             // subscribe on changes
             adapter.subscribeStates('*');
             adapter.subscribeObjects('*');
 
             // Mark all sensors as if they received something
-            for (var id in channels) {
+            for (const id in channels) {
                 if (!channels.hasOwnProperty(id)) continue;
                 // autoRepair is true or false
                 //channels[id].native.autoRepair = parseInt(channels[id].native.autoRepair, 10) || 0;
 
-                if (channels[id].native.autoRepair) lastReceived[id] = new Date().getTime();
+                if (channels[id].native.autoRepair) {
+                    lastReceived[id] = new Date().getTime();
+                }
             }
             // deactivated
             //repairInterval = setInterval(checkAutoRepair, 60000);

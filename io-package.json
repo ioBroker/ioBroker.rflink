@@ -1,8 +1,13 @@
 {
     "common": {
         "name": "rflink",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "news": {
+            "1.3.0": {
+                "en": "New firmware R48",
+                "de": "New firmware R48",
+                "ru": "New firmware R48"
+            },
             "1.2.0": {
                 "en": "Upgrade Serialport Library",
                 "de": "Serialport Bibliothek aktualisiert",
@@ -79,11 +84,11 @@
                 "ru": "Первая версия"
             }
         },
-        "title": "RFLink adapter",
+        "title": "RFLink",
         "desc": {
-            "en": "ioBroker RFLink Adapter",
-            "de": "ioBroker RFLink Adapter",
-            "ru": "ioBroker RFLink драйвер "
+            "en": "Support of RFLink stick, that enables 433/868Mhz communication",
+            "de": "ioBroker RFLink",
+            "ru": "ioBroker RFLink 433/868"
         },
         "platform": "Javascript/Node.js",
         "mode": "daemon",
