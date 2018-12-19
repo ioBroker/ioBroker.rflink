@@ -68,10 +68,20 @@ var decoders = {
         return parseInt(value, 10) * 22.5;
     },
     WINCHL: function (value) {
-        return parseInt(value, 16);
+        var result;
+        result = parseInt(value, 16);
+        if (result >= 0x8000) {
+            result = -1 * (result - 0x8000);
+        }
+        return result / 10;
     },
     WINTMP: function (value) {
-        return parseInt(value, 16);
+        var result;
+        result = parseInt(value, 16);
+        if (result >= 0x8000) {
+            result = -1 * (result - 0x8000);
+        }
+        return result / 10;
     },
     CHIME: function (value) {
         return parseInt(value);
@@ -182,10 +192,22 @@ var encoders = {
         return parseInt(value * 15 / 100).toString();
     },
     WINCHL: function (value) {
-        return value.toString(16);
+        var result;
+        result = Math.round(value * 10);
+        if (result < 0) {
+            result = -1 * result;
+            result = 0x8000 + result;
+        }
+        return ('0000' + result.toString(16)).slice(-4);
     },
     WINTMP: function (value) {
-        return value.toString(16);
+        var result;
+        result = Math.round(value * 10);
+        if (result < 0) {
+            result = -1 * result;
+            result = 0x8000 + result;
+        }
+        return ('0000' + result.toString(16)).slice(-4);
     },
     CHIME: function (value) {
         return value.toString();
