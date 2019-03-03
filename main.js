@@ -3,7 +3,7 @@
 'use strict';
 
 // you have to require the utils module and call adapter function
-const utils        = require('./lib/utils'); // Get common adapter utils
+const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 const Parses       = require('./admin/parse.js');
 const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./lib/serial.js');
 let  serialport;
