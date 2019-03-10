@@ -2,7 +2,7 @@
 # ioBroker.rflink
 =================
 
-[![NPM version](http://img.shields.io/npm/v/iobroker.rflink.svg)](https://www.npmjs.com/package/iobroker.rflink)
+![Number of Installations](http://iobroker.live/badges/rflink-installed.svg) ![Number of Installations](http://iobroker.live/badges/rflink-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.rflink.svg)](https://www.npmjs.com/package/iobroker.rflink)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.rflink.svg)](https://www.npmjs.com/package/iobroker.rflink)
 [![Tests](https://travis-ci.org/ioBroker/ioBroker.rflink.svg?branch=master)](https://travis-ci.org/ioBroker/ioBroker.rflink)
 
