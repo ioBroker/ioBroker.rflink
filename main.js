@@ -6,15 +6,21 @@
 const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 const Parses       = require('./admin/parse.js');
 const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./lib/serial.js');
-let  serialport;
 
+const adapter      = utils.Adapter('rflink');
+
+let  serialport;
 try {
     serialport = require('serialport');
 } catch (err) {
     console.error('Cannot load serialport module');
+    if (adapter.supportsFeature && !adapter.supportsFeature('CONTROLLER_NPM_AUTO_REBUILD')) {
+        // re throw error to allow rebuild of serialport in js-controler 3.0.18+
+        throw err;
+    }
 }
 
-const adapter      = utils.Adapter('rflink');
+
 let channels       = {};
 let states         = {};
 let inclusionOn    = false;
