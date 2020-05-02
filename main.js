@@ -16,7 +16,11 @@ try {
     console.error('Cannot load serialport module : ' + err);
     if (adapter.supportsFeature && !adapter.supportsFeature('CONTROLLER_NPM_AUTO_REBUILD')) {
         // re throw error to allow rebuild of serialport in js-controler 3.0.18+
-        adapter.EXIT_CODES && adapter.EXIT_CODES.ADAPTER_REQUESTED_REBUILD ? process.exit(adapter.EXIT_CODES.ADAPTER_REQUESTED_REBUILD) : throw err;
+        if (adapter.EXIT_CODES && adapter.EXIT_CODES.ADAPTER_REQUESTED_REBUILD) {
+            process.exit(adapter.EXIT_CODES.ADAPTER_REQUESTED_REBUILD);
+        } else {
+            throw err;
+        }
     }
 }
 
