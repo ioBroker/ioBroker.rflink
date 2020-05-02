@@ -13,10 +13,10 @@ let  serialport;
 try {
     serialport = require('serialport');
 } catch (err) {
-    console.error('Cannot load serialport module');
+    console.error('Cannot load serialport module : ' + err);
     if (adapter.supportsFeature && !adapter.supportsFeature('CONTROLLER_NPM_AUTO_REBUILD')) {
         // re throw error to allow rebuild of serialport in js-controler 3.0.18+
-        throw err;
+        process.exit(13);
     }
 }
 

@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "rflink",
-        "version": "2.1.1",
+        "version": "2.1.2",
         "news": {
-            "2.1.1": {
+            "2.1.2": {
                 "en": "Support for nodejs 12 added, nodejs 4 is no longer supported!",
                 "de": "Unterstützung für NodeJS 12 hinzugefügt, NodeJS 4 wird nicht mehr unterstützt!",
                 "ru": "Добавлена ​​поддержка nodejs 12, nodejs 4 больше не поддерживается!",
