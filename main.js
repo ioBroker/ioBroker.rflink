@@ -40,9 +40,11 @@ adapter.on('message', obj => {
                 if (obj.callback) {
                     if (serialport) {
                         // read all found serial ports
-                        serialport.list((err, ports) => {
+                        serialport.list().then(ports => {
                             adapter.log.info('List of port: ' + JSON.stringify(ports));
                             adapter.sendTo(obj.from, obj.command, ports, obj.callback);
+                        }).catch(err => {
+                            adapter.log.warn('Error getting serialport list');
                         });
                     } else {
                         adapter.log.warn('Module serialport is not available');
