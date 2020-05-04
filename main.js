@@ -9,15 +9,15 @@ const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./
 
 const adapter      = utils.Adapter('rflink');
 
-let  serialport;
+let serialport;
 try {
     serialport = require('serialport');
 } catch (err) {
     console.error('Cannot load serialport module : ' + err);
     if (adapter.supportsFeature && !adapter.supportsFeature('CONTROLLER_NPM_AUTO_REBUILD')) {
         // re throw error to allow rebuild of serialport in js-controler 3.0.18+
-        if (adapter.EXIT_CODES && adapter.EXIT_CODES.ADAPTER_REQUESTED_REBUILD) {
-            process.exit(adapter.EXIT_CODES.ADAPTER_REQUESTED_REBUILD);
+        if (utils.EXIT_CODES && utils.EXIT_CODES.ADAPTER_REQUESTED_REBUILD) {
+            process.exit(utils.EXIT_CODES.ADAPTER_REQUESTED_REBUILD);
         } else {
             throw err;
         }
@@ -47,7 +47,7 @@ adapter.on('message', obj => {
                         serialport.list().then(ports => {
                             adapter.log.info('List of port: ' + JSON.stringify(ports));
                             adapter.sendTo(obj.from, obj.command, ports, obj.callback);
-                        }).catch(err => {
+                        }).catch(_err => {
                             adapter.log.warn('Error getting serialport list');
                         });
                     } else {
@@ -467,7 +467,7 @@ function processFrame(frame, isAdd, callback) {
                     adapter.log.debug('Set state "' + stateId + '": ' + frame.CMD);
 
                     (function (__id) {
-                        adapter.setForeignState(stateId, frame.CMD, true, _err => {
+                        adapter.setForeignState(stateId, frame.CMD, true, () => {
                             if (states[__id + '.RGBW_' + frame.SWITCH] && frame.RGBW !== undefined) {
                                 adapter.log.debug('Set state "' + __id + '.RGBW_' + frame.SWITCH + '": ' + frame.RGBW);
                                 adapter.setForeignState(__id + '.RGBW_' + frame.SWITCH, frame.RGBW, true, function () {
@@ -475,7 +475,7 @@ function processFrame(frame, isAdd, callback) {
                                 })
                             } else if (states[__id + '.CHIME_' + frame.SWITCH] && frame.CHIME !== undefined) {
                                 adapter.log.debug('Set state "' + __id + '.CHIME_' + frame.SWITCH + '": ' + frame.CHIME);
-                                adapter.setForeignState(__id + '.CHIME_' + frame.SWITCH, frame.CHIME, true, function () {
+                                adapter.setForeignState(__id + '.CHIME_' + frame.SWITCH, frame.CHIME, true, () => {
                                     if (callback) callback();
                                 })
                             } else if (callback) {
