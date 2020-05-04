@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "rflink",
-        "version": "2.1.4",
+        "version": "2.1.5",
         "news": {
+            "2.1.5": {
+                "en": "optimize rebuild handling if needed",
+                "de": "Optimieren Sie bei Bedarf die Wiederherstellung",
+                "ru": "оптимизировать обработку перестроения при необходимости",
+                "pt": "otimizar a manipulação de reconstrução, se necessário",
+                "nl": "optimaliseer indien nodig de afhandeling van herbouw",
+                "fr": "optimiser la gestion de la reconstruction si nécessaire",
+                "it": "ottimizzare la gestione della ricostruzione, se necessario",
+                "es": "optimizar el manejo de reconstrucción si es necesario",
+                "pl": "w razie potrzeby zoptymalizuj obsługę przebudowy",
+                "zh-cn": "必要时优化重建处理"
+            },
             "2.1.4": {
                 "en": "Support for nodejs 12 added, nodejs 4 is no longer supported!",
                 "de": "Unterstützung für NodeJS 12 hinzugefügt, NodeJS 4 wird nicht mehr unterstützt!",
