@@ -52,7 +52,7 @@ E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the 
 -->
 
 ## Changelog
-### __WORK IN PROGRESS__
+### 2.1.6 (2020-09-25)
 * (evanes68) The reconnect on the disconnection was added
 * (bluefox) Compact mode was implemented
 

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "rflink",
-        "version": "2.1.5",
+        "version": "2.1.6",
         "news": {
+            "2.1.6": {
+                "en": "The reconnect on the disconnection was added\nCompact mode was implemented",
+                "de": "Die Wiederverbindung bei der Trennung wurde hinzugefügt\nDer Kompaktmodus wurde implementiert",
+                "ru": "Добавлено переподключение при отключении\nРеализован компактный режим",
+                "pt": "A reconexão na desconexão foi adicionada\nO modo compacto foi implementado",
+                "nl": "Het opnieuw verbinden bij de verbroken verbinding is toegevoegd\nDe compacte modus is geïmplementeerd",
+                "fr": "La reconnexion à la déconnexion a été ajoutée\nLe mode compact a été implémenté",
+                "it": "È stata aggiunta la riconnessione alla disconnessione\nÈ stata implementata la modalità compatta",
+                "es": "Se agregó la reconexión en la desconexión\nSe implementó el modo compacto",
+                "pl": "Dodano ponowne połączenie po rozłączeniu\nZaimplementowano tryb kompaktowy",
+                "zh-cn": "添加了断开连接上的重新连接\n实施紧凑模式"
+            },
             "2.1.5": {
                 "en": "optimize rebuild handling if needed",
                 "de": "Optimieren Sie bei Bedarf die Wiederherstellung",
