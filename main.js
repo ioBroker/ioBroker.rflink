@@ -3,11 +3,11 @@
 'use strict';
 
 // you have to require the utils module and call adapter function
-const utils = require('@iobroker/adapter-core'); // Get common adapter utils
+const utils        = require('@iobroker/adapter-core'); // Get common adapter utils
+const adapterName  = require('./package.json').name.split('.').pop();
 const Parses       = require('./admin/parse.js');
 const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./lib/serial.js');
-
-const adapter      = utils.Adapter('rflink');
+let adapter;
 
 let serialport;
 try {
@@ -24,11 +24,11 @@ try {
     }
 }
 
-
 let channels       = {};
 let states         = {};
 let inclusionOn    = false;
 let inclusionTimeout = false;
+let inclusionTimeoutObj = null;
 const addQueue     = [];
 const lastReceived = {};
 let repairInterval = null;
@@ -37,152 +37,170 @@ const flash        = require('./lib/flash.js');
 let comm;
 let fwLink;
 
-adapter.on('message', obj => {
-    if (obj) {
-        switch (obj.command) {
-            case 'listUart':
-                if (obj.callback) {
-                    if (serialport) {
-                        // read all found serial ports
-                        serialport.list().then(ports => {
-                            adapter.log.info('List of port: ' + JSON.stringify(ports));
-                            adapter.sendTo(obj.from, obj.command, ports, obj.callback);
-                        }).catch(_err => {
-                            adapter.log.warn('Error getting serialport list');
-                        });
-                    } else {
-                        adapter.log.warn('Module serialport is not available');
-                        adapter.sendTo(obj.from, obj.command, [{comName: 'Not available'}], obj.callback);
-                    }
-                }
-
-                break;
-
-            case 'readNewVersion':
-                const request      = require('request');
-                request('http://www.nemcon.nl/blog2/fw/iob/update.jsp', (error, message, data) => {
-                    let m;
-                    if ((m = data.match(/iob\/(\d+)\/RFLink\.cpp\.hex/))) {
-                        adapter.setState('availableVersion', m[1], true);
-                    }
+function startAdapter(options) {
+    options = options || {};
+    Object.assign(options, {name: adapterName});
+    adapter = new utils.Adapter(options);
+    adapter.on('message', obj => {
+        if (obj) {
+            switch (obj.command) {
+                case 'listUart':
                     if (obj.callback) {
-                        if ((m = data.match(/<Url>(.+)<\/Url>/))) {
-                            fwLink = m[1];
+                        if (serialport) {
+                            // read all found serial ports
+                            serialport.list().then(ports => {
+                                adapter.log.info('List of port: ' + JSON.stringify(ports));
+                                adapter.sendTo(obj.from, obj.command, ports, obj.callback);
+                            }).catch(_err => {
+                                adapter.log.warn('Error getting serialport list');
+                            });
+                        } else {
+                            adapter.log.warn('Module serialport is not available');
+                            adapter.sendTo(obj.from, obj.command, [{comName: 'Not available'}], obj.callback);
+                        }
+                    }
+
+                    break;
+
+                case 'readNewVersion':
+                    const request = require('request');
+                    request('http://www.nemcon.nl/blog2/fw/iob/update.jsp', (error, message, data) => {
+                        let m;
+                        if ((m = data.match(/iob\/(\d+)\/RFLink\.cpp\.hex/))) {
+                            adapter.setState('availableVersion', m[1], true);
                         }
                         if (obj.callback) {
-                            adapter.sendTo(obj.from, obj.command, {fwLink: fwLink}, obj.callback);
+                            if ((m = data.match(/<Url>(.+)<\/Url>/))) {
+                                fwLink = m[1];
+                            }
+                            if (obj.callback) {
+                                adapter.sendTo(obj.from, obj.command, {fwLink: fwLink}, obj.callback);
+                            }
+                        }
+                    });
+
+                    break;
+
+                case 'flash':
+                    if (comm) {
+                        comm.destroy();
+                        comm = null;
+                    }
+
+
+                    obj.message = obj.message || {};
+                    obj.message.hex = obj.message.hex || fwLink;
+                    if (!obj.message.hex) {
+                        const dirs = require('fs').readdirSync(__dirname + '/hex');
+                        if (dirs && dirs.length) {
+                            obj.message.hex = __dirname + '/hex/' + dirs[0];
                         }
                     }
-                });
 
-                break;
+                    flash(obj.message, adapter.config, adapter.log, err => {
+                        if (obj.callback) {
+                            if (err) adapter.log.error('Cannot flash: ' + err);
+                            adapter.sendTo(obj.from, obj.command, {error: err ? (err.message || err) : null}, obj.callback);
+                        } else {
+                            if (err) adapter.log.error('Cannot flash: ' + err);
+                            obj = null;
+                        }
+                        // start communication again
+                        start(true);
+                    });
+                    break;
 
-            case 'flash':
-                if (comm) {
-                    comm.destroy();
-                    comm = null;
-                }
-				
-
-                obj.message = obj.message  || {};
-                obj.message.hex = obj.message.hex || fwLink;
-				if (!obj.message.hex) {
-					const dirs = require('fs').readdirSync(__dirname + '/hex');
-					if (dirs && dirs.length) {
-					    obj.message.hex = __dirname + '/hex/' + dirs[0];
-                    }
-				}
-
-                flash(obj.message, adapter.config, adapter.log, err => {
-                    if (obj.callback) {
-                        if (err) adapter.log.error('Cannot flash: ' + err);
-                        adapter.sendTo(obj.from, obj.command, {error: err ? (err.message || err) : null}, obj.callback);
-                    } else {
-                        if (err) adapter.log.error('Cannot flash: ' + err);
-                        obj = null;
-                    }
-                    // start communication again
-                    start(true);
-                });
-                break;
-
-            default:
-                adapter.log.error('Unknown command: ' + obj.command);
-                break;
-        }
-    }
-});
-
-// is called when adapter shuts down - callback has to be called under any circumstances!
-adapter.on('unload', function (callback) {
-    adapter.setState('info.connection', false, true);
-    try {
-        if (repairInterval) {
-            clearInterval(repairInterval);
-            repairInterval = null;
-        }
-
-        if (comm) comm.destroy();
-        comm = null;
-        callback();
-    } catch (e) {
-        callback();
-    }
-});
-
-// is called if a subscribed state changes
-adapter.on('stateChange', function (id, state) {
-    if (!state || state.ack || !comm) return;
-
-    // Warning, state can be null if it was deleted
-    adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
-
-    if (id === adapter.namespace + '.rawData') {
-        // write raw command
-        setTimeout(cmd => {
-            adapter.log.debug('Write: ' + cmd);
-            if (comm) {
-                comm.write(cmd, err => {
-                    if (err) adapter.log.error('Cannot write "' + cmd + '": ' + err);
-                    cmd = null;
-                });
+                default:
+                    adapter.log.error('Unknown command: ' + obj.command);
+                    break;
             }
-        }, 0, state.val);
-    } else
-    if (id === adapter.namespace + '.inclusionOn') {
-        setInclusionState(state.val);
-        setTimeout(val => adapter.setState('inclusionOn', val, true), 200, state.val);
-    } else
-    // output to rflink
-    if (states[id] && states[id].common.write) {
-        writeCommand(id, state.val, err =>
-            err && adapter.log.error('Cannot write "' + id + '": ' + err));
-    }
-});
+        }
+    });
 
-adapter.on('objectChange', (id, obj) => {
-    if (!obj) {
-        if (channels[id])     delete channels[id];
-        if (states[id])       delete states[id];
-        if (lastReceived[id]) delete lastReceived[id];
-    } else {
-        if (obj.type === 'state') {
-            states[id] = obj
-        } else if (obj.type === 'channel') {
-            //if (obj.native.autoRepair !== undefined) obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
+    // is called when adapter shuts down - callback has to be called under any circumstances!
+    adapter.on('unload', callback => {
+        adapter.setState('info.connection', false, true);
 
-            if (obj.native.autoRepair) {
-                lastReceived[id] = new Date().getTime();
-            } else if (lastReceived[id]) {
+        inclusionTimeoutObj && clearTimeout(inclusionTimeoutObj);
+        inclusionTimeoutObj = null;
+
+        try {
+            if (repairInterval) {
+                clearInterval(repairInterval);
+                repairInterval = null;
+            }
+
+            comm && comm.destroy();
+            comm = null;
+            callback();
+        } catch (e) {
+            callback();
+        }
+    });
+
+    // is called if a subscribed state changes
+    adapter.on('stateChange', (id, state) => {
+        if (!state || state.ack || !comm) {
+            return;
+        }
+
+        // Warning, state can be null if it was deleted
+        adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
+
+        if (id === adapter.namespace + '.rawData') {
+            // write raw command
+            setTimeout(cmd => {
+                adapter.log.debug('Write: ' + cmd);
+                if (comm) {
+                    comm.write(cmd, err => {
+                        err && adapter.log.error('Cannot write "' + cmd + '": ' + err);
+                        cmd = null;
+                    });
+                }
+            }, 0, state.val);
+        } else if (id === adapter.namespace + '.inclusionOn') {
+            setInclusionState(state.val);
+            setTimeout(val => adapter.setState('inclusionOn', val, true), 200, state.val);
+        } else
+            // output to rflink
+        if (states[id] && states[id].common.write) {
+            writeCommand(id, state.val, err =>
+                err && adapter.log.error('Cannot write "' + id + '": ' + err));
+        }
+    });
+
+    adapter.on('objectChange', (id, obj) => {
+        if (!obj) {
+            if (channels[id]) {
+                delete channels[id];
+            }
+            if (states[id]) {
+                delete states[id];
+            }
+            if (lastReceived[id]) {
                 delete lastReceived[id];
             }
+        } else {
+            if (obj.type === 'state') {
+                states[id] = obj
+            } else if (obj.type === 'channel') {
+                //if (obj.native.autoRepair !== undefined) obj.native.autoRepair = parseInt(obj.native.autoRepair, 10) || 0;
 
-            channels[id] = obj;
+                if (obj.native.autoRepair) {
+                    lastReceived[id] = new Date().getTime();
+                } else if (lastReceived[id]) {
+                    delete lastReceived[id];
+                }
+
+                channels[id] = obj;
+            }
         }
-    }
-});
+    });
 
-adapter.on('ready', () => main());
+    adapter.on('ready', () => main());
+
+    return adapter;
+}
 
 let presentationDone = false;
 
@@ -405,9 +423,8 @@ function addNewDevice(frame, attrs, callback) {
                                 }
 
                                 //adapter.setState('rawData', frame.dataRaw, true);
-                                adapter.setForeignState(obj._id, frame[obj.native.attr], true, function () {
-                                    insertObjs(_objs);
-                                });
+                                adapter.setForeignState(obj._id, frame[obj.native.attr], true, () =>
+                                    insertObjs(_objs));
                             } else {
                                 insertObjs(_objs);
                             }
@@ -422,7 +439,9 @@ function addNewDevice(frame, attrs, callback) {
 }
 
 function processAdd() {
-    if (!addQueue.length) return;
+    if (!addQueue.length) {
+        return;
+    }
 
     const frame = addQueue[0];
     processFrame(frame, true, () =>
@@ -470,13 +489,13 @@ function processFrame(frame, isAdd, callback) {
                         adapter.setForeignState(stateId, frame.CMD, true, () => {
                             if (states[__id + '.RGBW_' + frame.SWITCH] && frame.RGBW !== undefined) {
                                 adapter.log.debug('Set state "' + __id + '.RGBW_' + frame.SWITCH + '": ' + frame.RGBW);
-                                adapter.setForeignState(__id + '.RGBW_' + frame.SWITCH, frame.RGBW, true, function () {
-                                    if (callback) callback();
+                                adapter.setForeignState(__id + '.RGBW_' + frame.SWITCH, frame.RGBW, true, () => {
+                                    callback && callback();
                                 })
                             } else if (states[__id + '.CHIME_' + frame.SWITCH] && frame.CHIME !== undefined) {
                                 adapter.log.debug('Set state "' + __id + '.CHIME_' + frame.SWITCH + '": ' + frame.CHIME);
                                 adapter.setForeignState(__id + '.CHIME_' + frame.SWITCH, frame.CHIME, true, () => {
-                                    if (callback) callback();
+                                    callback && callback();
                                 })
                             } else if (callback) {
                                 callback();
@@ -594,9 +613,12 @@ function processFrame(frame, isAdd, callback) {
         if (!isAdd) {
             addQueue.push(frame);
             if (addQueue.length === 1) {
-                setTimeout(processAdd, 100);
+                inclusionTimeoutObj = setTimeout(() => {
+                    inclusionTimeoutObj = null;
+                    processAdd();
+                }, 100);
             }
-            if (callback) callback ();
+            callback && callback ();
         } else {
             addNewDevice(frame, attrs, callback);
         }
@@ -615,7 +637,9 @@ function start(doNotSendStart) {
         }
     });
     comm.on('connectionChange', connected => {
-        if (!connected) skipFirst = true;
+        if (!connected) {
+            skipFirst = true;
+        }
         adapter.setState('info.connection', connected, true);
     });
     comm.on('data', data => {
@@ -683,4 +707,12 @@ function main() {
             start();
         });
     });
+}
+
+// If started as allInOne/compact mode => return function to create instance
+if (module && module.parent) {
+    module.exports = startAdapter;
+} else {
+    // or start the instance directly
+    startAdapter();
 }

@@ -132,6 +132,7 @@
         "license": "MIT",
         "enabled": true,
         "messagebox": true,
+        "compact": true,
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
         "keywords": [
             "RFLink",
