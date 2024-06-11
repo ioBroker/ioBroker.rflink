@@ -51,6 +51,9 @@ E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the 
 -->
 
 ## Changelog
+### __WORK IN PROGRESS__
+* (foxriver76) upgrade serialport
+
 ### 2.1.7 (2024-06-11)
 * (foxriver76) ensured js-controller v6 compatibility
 

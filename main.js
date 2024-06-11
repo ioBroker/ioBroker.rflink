@@ -8,21 +8,8 @@ const adapterName  = require('./package.json').name.split('.').pop();
 const Parses       = require('./admin/parse.js');
 const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./lib/serial.js');
 let adapter;
+const serialport = require('serialport');
 
-let serialport;
-try {
-    serialport = require('serialport');
-} catch (err) {
-    console.error('Cannot load serialport module : ' + err);
-    if (adapter.supportsFeature && !adapter.supportsFeature('CONTROLLER_NPM_AUTO_REBUILD')) {
-        // re throw error to allow rebuild of serialport in js-controler 3.0.18+
-        if (utils.EXIT_CODES && utils.EXIT_CODES.ADAPTER_REQUESTED_REBUILD) {
-            process.exit(utils.EXIT_CODES.ADAPTER_REQUESTED_REBUILD);
-        } else {
-            throw err;
-        }
-    }
-}
 
 let channels       = {};
 let states         = {};
