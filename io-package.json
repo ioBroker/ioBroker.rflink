@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "rflink",
-        "version": "2.1.6",
+        "version": "2.1.7",
         "news": {
+            "2.1.7": {
+                "en": "ensured js-controller v6 compatibility",
+                "de": "sicherte js-controller v6 kompatibilität",
+                "ru": "обеспечивает совместимость js-controller v6",
+                "pt": "compatibilidade garantida js-controller v6",
+                "nl": "js-controller v6 compatibiliteit",
+                "fr": "assurer la compatibilité de js-controller v6",
+                "it": "compatibile con js-controller v6",
+                "es": "seguridad js-controller v6 compatibilidad",
+                "pl": "zapewnił kompatybilność js- controller v6",
+                "uk": "забезпечує сумісність js-controller v6",
+                "zh-cn": "确保js控制器 v6 兼容性"
+            },
             "2.1.6": {
                 "en": "The reconnect on the disconnection was added\nCompact mode was implemented",
                 "de": "Die Wiederverbindung bei der Trennung wurde hinzugefügt\nDer Kompaktmodus wurde implementiert",
@@ -125,11 +138,6 @@
                 "en": "Fix the last changed time indication",
                 "de": "Korrigiere die Anzeige für letzte Änderung",
                 "ru": "Исправлено обновление времени последнего изменения"
-            },
-            "0.1.3": {
-                "en": "initial commit",
-                "de": "Erste Version",
-                "ru": "Первая версия"
             }
         },
         "title": "RFLink",
