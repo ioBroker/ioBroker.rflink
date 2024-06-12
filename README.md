@@ -51,7 +51,7 @@ E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the 
 -->
 
 ## Changelog
-### __WORK IN PROGRESS__
+### 2.1.11 (2024-06-12)
 * (foxriver76) fix serialport
 
 ### 2.1.8 (2024-06-11)
