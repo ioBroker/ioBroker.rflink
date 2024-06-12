@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "rflink",
-        "version": "2.1.11",
+        "version": "2.1.12",
         "news": {
+            "2.1.12": {
+                "en": "fix serialport",
+                "de": "serielle schnittstelle",
+                "ru": "исправление серийный",
+                "pt": "corrigir serialport",
+                "nl": "fix serialport",
+                "fr": "correction du port série",
+                "it": "fissare la porta seriale",
+                "es": "arreglar serialport",
+                "pl": "fix serialport",
+                "uk": "фіксувати серійнийпорт",
+                "zh-cn": "固定序列端口"
+            },
             "2.1.11": {
                 "en": "fix serialport",
                 "de": "serielle schnittstelle",
@@ -165,11 +178,6 @@
                 "en": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands",
                 "de": "Bibliothek serialport aktualisiert um Kompatibel zu node 6.x zu sein, Unterstützung für MiLightv1 und raw Kommandos",
                 "ru": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands"
-            },
-            "1.0.5": {
-                "en": "Read newest sketch from web",
-                "de": "Lese neue Sketch Version aus dem Web",
-                "ru": "Читать новую версию скетча из интернета"
             }
         },
         "title": "RFLink",

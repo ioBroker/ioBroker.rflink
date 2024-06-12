@@ -1,6 +1,6 @@
 {
   "name": "iobroker.rflink",
-  "version": "2.1.11",
+  "version": "2.1.12",
   "description": "ioBroker RFLink Adapter",
   "author": {
     "name": "bluefox",
