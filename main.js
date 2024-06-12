@@ -8,7 +8,7 @@ const adapterName  = require('./package.json').name.split('.').pop();
 const Parses       = require('./admin/parse.js');
 const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./lib/serial.js');
 let adapter;
-const serialport = require('serialport');
+const {SerialPort} = require('serialport');
 
 let channels       = {};
 let states         = {};
@@ -32,9 +32,9 @@ function startAdapter(options) {
             switch (obj.command) {
                 case 'listUart':
                     if (obj.callback) {
-                        if (serialport) {
+                        if (SerialPort) {
                             // read all found serial ports
-                            serialport.list().then(ports => {
+                            SerialPort.list().then(ports => {
                                 adapter.log.info('List of port: ' + JSON.stringify(ports));
                                 adapter.sendTo(obj.from, obj.command, ports, obj.callback);
                             }).catch(_err => {
