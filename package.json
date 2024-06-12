@@ -34,7 +34,6 @@
   },
   "devDependencies": {
     "@alcalzone/release-script": "^2.2.2",
-    "@types/serialport": "^8.0.5",
     "chai": "^4.2.0",
     "gulp": "^4.0.2",
     "mocha": "^8.1.3",

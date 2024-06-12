@@ -10,7 +10,6 @@ const Serial       = process.env.DEBUG ? require('./lib/debug.js') : require('./
 let adapter;
 const serialport = require('serialport');
 
-
 let channels       = {};
 let states         = {};
 let inclusionOn    = false;
