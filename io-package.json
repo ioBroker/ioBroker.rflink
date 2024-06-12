@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "rflink",
-        "version": "2.1.9",
+        "version": "2.1.10",
         "news": {
+            "2.1.10": {
+                "en": "fix serialport",
+                "de": "serielle schnittstelle",
+                "ru": "исправление серийный",
+                "pt": "corrigir serialport",
+                "nl": "fix serialport",
+                "fr": "correction du port série",
+                "it": "fissare la porta seriale",
+                "es": "arreglar serialport",
+                "pl": "fix serialport",
+                "uk": "фіксувати серійнийпорт",
+                "zh-cn": "固定序列端口"
+            },
             "2.1.9": {
                 "en": "fix serialport",
                 "de": "serielle schnittstelle",
@@ -149,11 +162,6 @@
                 "en": "Flashing of sketch into arduino\nSet_level from 1 to 15",
                 "de": "Schreiben von Sketch ins Arduino\nSetzte set_level von 1 bis 15",
                 "ru": "Запись скетча в Arduino\nУровент set_level от 1 до 15"
-            },
-            "0.2.1": {
-                "en": "Fix for SET_LEVEL",
-                "de": "Korrigiere SET_LEVEL Steuerung",
-                "ru": "Исправлена команда SET_LEVEL"
             }
         },
         "title": "RFLink",
