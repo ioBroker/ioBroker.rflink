@@ -200,6 +200,7 @@
         ],
         "readme": "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",
         "loglevel": "info",
+        "tier": 2,
         "stopBeforeUpdate": true,
         "type": "iot-systems",
         "authors": [
