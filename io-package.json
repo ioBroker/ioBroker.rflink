@@ -189,7 +189,10 @@
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "icon": "rflink.png",
-        "license": "MIT",
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },
         "enabled": true,
         "messagebox": true,
         "compact": true,
