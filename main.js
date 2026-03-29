@@ -77,7 +77,7 @@ function startAdapter(options) {
                     obj.message = obj.message || {};
                     obj.message.hex = obj.message.hex || fwLink;
                     if (!obj.message.hex) {
-                        const dirs = require('fs').readdirSync(__dirname + '/hex');
+                        const dirs = require('node:fs').readdirSync(__dirname + '/hex');
                         if (dirs && dirs.length) {
                             obj.message.hex = __dirname + '/hex/' + dirs[0];
                         }
