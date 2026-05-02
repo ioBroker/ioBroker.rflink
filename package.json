@@ -41,7 +41,7 @@
     "nan": "2.14.1"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=22.0.0"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.rflink/issues"
