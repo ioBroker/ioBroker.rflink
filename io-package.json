@@ -1,295 +1,300 @@
 {
-    "common": {
-        "name": "rflink",
-        "version": "2.1.12",
-        "news": {
-            "2.1.12": {
-                "en": "fix serialport",
-                "de": "serielle schnittstelle",
-                "ru": "исправление серийный",
-                "pt": "corrigir serialport",
-                "nl": "fix serialport",
-                "fr": "correction du port série",
-                "it": "fissare la porta seriale",
-                "es": "arreglar serialport",
-                "pl": "fix serialport",
-                "uk": "фіксувати серійнийпорт",
-                "zh-cn": "固定序列端口"
-            },
-            "2.1.11": {
-                "en": "fix serialport",
-                "de": "serielle schnittstelle",
-                "ru": "исправление серийный",
-                "pt": "corrigir serialport",
-                "nl": "fix serialport",
-                "fr": "correction du port série",
-                "it": "fissare la porta seriale",
-                "es": "arreglar serialport",
-                "pl": "fix serialport",
-                "uk": "фіксувати серійнийпорт",
-                "zh-cn": "固定序列端口"
-            },
-            "2.1.10": {
-                "en": "fix serialport",
-                "de": "serielle schnittstelle",
-                "ru": "исправление серийный",
-                "pt": "corrigir serialport",
-                "nl": "fix serialport",
-                "fr": "correction du port série",
-                "it": "fissare la porta seriale",
-                "es": "arreglar serialport",
-                "pl": "fix serialport",
-                "uk": "фіксувати серійнийпорт",
-                "zh-cn": "固定序列端口"
-            },
-            "2.1.9": {
-                "en": "fix serialport",
-                "de": "serielle schnittstelle",
-                "ru": "исправление серийный",
-                "pt": "corrigir serialport",
-                "nl": "fix serialport",
-                "fr": "correction du port série",
-                "it": "fissare la porta seriale",
-                "es": "arreglar serialport",
-                "pl": "fix serialport",
-                "uk": "фіксувати серійнийпорт",
-                "zh-cn": "固定序列端口"
-            },
-            "2.1.8": {
-                "en": "upgrade serialport",
-                "de": "serielle schnittstelle",
-                "ru": "обновление серийного порта",
-                "pt": "atualização serialport",
-                "nl": "upgrade seriële poort",
-                "fr": "mise à jour du port série",
-                "it": "aggiornamento serialport",
-                "es": "actualización serialport",
-                "pl": "upgrade serialport",
-                "uk": "оновлення серійного порту",
-                "zh-cn": "升级序列端口"
-            },
-            "2.1.7": {
-                "en": "ensured js-controller v6 compatibility",
-                "de": "sicherte js-controller v6 kompatibilität",
-                "ru": "обеспечивает совместимость js-controller v6",
-                "pt": "compatibilidade garantida js-controller v6",
-                "nl": "js-controller v6 compatibiliteit",
-                "fr": "assurer la compatibilité de js-controller v6",
-                "it": "compatibile con js-controller v6",
-                "es": "seguridad js-controller v6 compatibilidad",
-                "pl": "zapewnił kompatybilność js- controller v6",
-                "uk": "забезпечує сумісність js-controller v6",
-                "zh-cn": "确保js控制器 v6 兼容性"
-            },
-            "2.1.6": {
-                "en": "The reconnect on the disconnection was added\nCompact mode was implemented",
-                "de": "Die Wiederverbindung bei der Trennung wurde hinzugefügt\nDer Kompaktmodus wurde implementiert",
-                "ru": "Добавлено переподключение при отключении\nРеализован компактный режим",
-                "pt": "A reconexão na desconexão foi adicionada\nO modo compacto foi implementado",
-                "nl": "Het opnieuw verbinden bij de verbroken verbinding is toegevoegd\nDe compacte modus is geïmplementeerd",
-                "fr": "La reconnexion à la déconnexion a été ajoutée\nLe mode compact a été implémenté",
-                "it": "È stata aggiunta la riconnessione alla disconnessione\nÈ stata implementata la modalità compatta",
-                "es": "Se agregó la reconexión en la desconexión\nSe implementó el modo compacto",
-                "pl": "Dodano ponowne połączenie po rozłączeniu\nZaimplementowano tryb kompaktowy",
-                "zh-cn": "添加了断开连接上的重新连接\n实施紧凑模式"
-            },
-            "2.1.5": {
-                "en": "optimize rebuild handling if needed",
-                "de": "Optimieren Sie bei Bedarf die Wiederherstellung",
-                "ru": "оптимизировать обработку перестроения при необходимости",
-                "pt": "otimizar a manipulação de reconstrução, se necessário",
-                "nl": "optimaliseer indien nodig de afhandeling van herbouw",
-                "fr": "optimiser la gestion de la reconstruction si nécessaire",
-                "it": "ottimizzare la gestione della ricostruzione, se necessario",
-                "es": "optimizar el manejo de reconstrucción si es necesario",
-                "pl": "w razie potrzeby zoptymalizuj obsługę przebudowy",
-                "zh-cn": "必要时优化重建处理"
-            },
-            "2.1.4": {
-                "en": "Support for nodejs 12 added, nodejs 4 is no longer supported!",
-                "de": "Unterstützung für NodeJS 12 hinzugefügt, NodeJS 4 wird nicht mehr unterstützt!",
-                "ru": "Добавлена ​​поддержка nodejs 12, nodejs 4 больше не поддерживается!",
-                "pt": "Suporte para nodejs 12 adicionado, nodejs 4 não é mais suportado!",
-                "nl": "Ondersteuning voor nodejs 12 toegevoegd, nodejs 4 wordt niet langer ondersteund!",
-                "fr": "Prise en charge de nodejs 12 ajoutée, nodejs 4 n'est plus prise en charge!",
-                "it": "Supporto per nodejs 12 aggiunto, nodejs 4 non è più supportato!",
-                "es": "Se agregó soporte para nodejs 12, ¡nodejs 4 ya no es compatible!",
-                "pl": "Dodano wsparcie dla nodejs 12, nodejs 4 nie jest już obsługiwany!",
-                "zh-cn": "添加了对nodejs 12的支持，不再支持nodejs 4！"
-            },
-            "2.0.0": {
-                "en": "Support for nodejs 12 added, nodejs 4 is no longer supported!",
-                "de": "Unterstützung für NodeJS 12 hinzugefügt, NodeJS 4 wird nicht mehr unterstützt!",
-                "ru": "Добавлена ​​поддержка nodejs 12, nodejs 4 больше не поддерживается!",
-                "pt": "Suporte para nodejs 12 adicionado, nodejs 4 não é mais suportado!",
-                "nl": "Ondersteuning voor nodejs 12 toegevoegd, nodejs 4 wordt niet langer ondersteund!",
-                "fr": "Prise en charge de nodejs 12 ajoutée, nodejs 4 n'est plus prise en charge!",
-                "it": "Supporto per nodejs 12 aggiunto, nodejs 4 non è più supportato!",
-                "es": "Se agregó soporte para nodejs 12, ¡nodejs 4 ya no es compatible!",
-                "pl": "Dodano wsparcie dla nodejs 12, nodejs 4 nie jest już obsługiwany!",
-                "zh-cn": "添加了对nodejs 12的支持，不再支持nodejs 4！"
-            },
-            "1.3.0": {
-                "en": "New firmware R48",
-                "de": "New firmware R48",
-                "ru": "New firmware R48"
-            },
-            "1.2.0": {
-                "en": "Upgrade Serialport Library",
-                "de": "Serialport Bibliothek aktualisiert",
-                "ru": "Upgrade Serialport Library"
-            },
-            "1.1.6": {
-                "en": "Fix parsing for Wind-Direction",
-                "de": "Verarbeitung der Windrichtung behoben",
-                "ru": "Fix parsing for Wind-Direction"
-            },
-            "1.1.5": {
-                "en": "Upgrade Serial Library",
-                "de": "Serial Library aktualisiert",
-                "ru": "Upgrade Serial Library"
-            },
-            "1.1.4": {
-                "en": "Fix the rain calculation",
-                "de": "Korrigiere die Berechnugn von Regenniederschlag",
-                "ru": "Исправлено вычисление порывов уровня осадков"
-            },
-            "1.1.3": {
-                "en": "Allow flash on node.js < 5",
-                "de": "Erlaube Firmware-Schreiben auch für node.js < 5",
-                "ru": "Можно обновлять память на node.js < 5"
-            },
-            "1.1.2": {
-                "en": "Fix the wind gist calculation",
-                "de": "Korrigiere die Berechnugn von Böen",
-                "ru": "Исправлено вычисление порывов ветра"
-            },
-            "1.1.0": {
-                "en": "Add stop for blinds",
-                "de": "STOP für Rolladen hinzugefügt",
-                "ru": "Добавлен STOP для жалюзей"
-            },
-            "1.0.8": {
-                "en": "fix KWATT calculation for Oregon CM180",
-                "de": "Korrigiere KWATT Berechnung für Oregon CM180",
-                "ru": "Исправлено вычисление KWATT для Oregon CM180"
-            },
-            "1.0.6": {
-                "en": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands",
-                "de": "Bibliothek serialport aktualisiert um Kompatibel zu node 6.x zu sein, Unterstützung für MiLightv1 und raw Kommandos",
-                "ru": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands"
-            }
-        },
-        "title": "RFLink",
-        "desc": {
-            "en": "Support of RFLink stick, that enables 433/868Mhz communication",
-            "de": "ioBroker RFLink",
-            "ru": "ioBroker RFLink 433/868"
-        },
-        "platform": "Javascript/Node.js",
-        "mode": "daemon",
-        "icon": "rflink.png",
-        "license": "MIT",
-        "enabled": true,
-        "messagebox": true,
-        "compact": true,
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
-        "keywords": [
-            "RFLink",
-            "arduino mega"
-        ],
-        "readme": "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",
-        "loglevel": "info",
-        "stopBeforeUpdate": true,
-        "type": "iot-systems",
-        "authors": [
-            {
-                "name": "bluefox",
-                "email": "dogafox@gmail.com"
-            }
-        ]
+  "common": {
+    "name": "rflink",
+    "version": "2.1.12",
+    "news": {
+      "2.1.12": {
+        "en": "fix serialport",
+        "de": "serielle schnittstelle",
+        "ru": "исправление серийный",
+        "pt": "corrigir serialport",
+        "nl": "fix serialport",
+        "fr": "correction du port série",
+        "it": "fissare la porta seriale",
+        "es": "arreglar serialport",
+        "pl": "fix serialport",
+        "uk": "фіксувати серійнийпорт",
+        "zh-cn": "固定序列端口"
+      },
+      "2.1.11": {
+        "en": "fix serialport",
+        "de": "serielle schnittstelle",
+        "ru": "исправление серийный",
+        "pt": "corrigir serialport",
+        "nl": "fix serialport",
+        "fr": "correction du port série",
+        "it": "fissare la porta seriale",
+        "es": "arreglar serialport",
+        "pl": "fix serialport",
+        "uk": "фіксувати серійнийпорт",
+        "zh-cn": "固定序列端口"
+      },
+      "2.1.10": {
+        "en": "fix serialport",
+        "de": "serielle schnittstelle",
+        "ru": "исправление серийный",
+        "pt": "corrigir serialport",
+        "nl": "fix serialport",
+        "fr": "correction du port série",
+        "it": "fissare la porta seriale",
+        "es": "arreglar serialport",
+        "pl": "fix serialport",
+        "uk": "фіксувати серійнийпорт",
+        "zh-cn": "固定序列端口"
+      },
+      "2.1.9": {
+        "en": "fix serialport",
+        "de": "serielle schnittstelle",
+        "ru": "исправление серийный",
+        "pt": "corrigir serialport",
+        "nl": "fix serialport",
+        "fr": "correction du port série",
+        "it": "fissare la porta seriale",
+        "es": "arreglar serialport",
+        "pl": "fix serialport",
+        "uk": "фіксувати серійнийпорт",
+        "zh-cn": "固定序列端口"
+      },
+      "2.1.8": {
+        "en": "upgrade serialport",
+        "de": "serielle schnittstelle",
+        "ru": "обновление серийного порта",
+        "pt": "atualização serialport",
+        "nl": "upgrade seriële poort",
+        "fr": "mise à jour du port série",
+        "it": "aggiornamento serialport",
+        "es": "actualización serialport",
+        "pl": "upgrade serialport",
+        "uk": "оновлення серійного порту",
+        "zh-cn": "升级序列端口"
+      },
+      "2.1.7": {
+        "en": "ensured js-controller v6 compatibility",
+        "de": "sicherte js-controller v6 kompatibilität",
+        "ru": "обеспечивает совместимость js-controller v6",
+        "pt": "compatibilidade garantida js-controller v6",
+        "nl": "js-controller v6 compatibiliteit",
+        "fr": "assurer la compatibilité de js-controller v6",
+        "it": "compatibile con js-controller v6",
+        "es": "seguridad js-controller v6 compatibilidad",
+        "pl": "zapewnił kompatybilność js- controller v6",
+        "uk": "забезпечує сумісність js-controller v6",
+        "zh-cn": "确保js控制器 v6 兼容性"
+      },
+      "2.1.6": {
+        "en": "The reconnect on the disconnection was added\nCompact mode was implemented",
+        "de": "Die Wiederverbindung bei der Trennung wurde hinzugefügt\nDer Kompaktmodus wurde implementiert",
+        "ru": "Добавлено переподключение при отключении\nРеализован компактный режим",
+        "pt": "A reconexão na desconexão foi adicionada\nO modo compacto foi implementado",
+        "nl": "Het opnieuw verbinden bij de verbroken verbinding is toegevoegd\nDe compacte modus is geïmplementeerd",
+        "fr": "La reconnexion à la déconnexion a été ajoutée\nLe mode compact a été implémenté",
+        "it": "È stata aggiunta la riconnessione alla disconnessione\nÈ stata implementata la modalità compatta",
+        "es": "Se agregó la reconexión en la desconexión\nSe implementó el modo compacto",
+        "pl": "Dodano ponowne połączenie po rozłączeniu\nZaimplementowano tryb kompaktowy",
+        "zh-cn": "添加了断开连接上的重新连接\n实施紧凑模式"
+      },
+      "2.1.5": {
+        "en": "optimize rebuild handling if needed",
+        "de": "Optimieren Sie bei Bedarf die Wiederherstellung",
+        "ru": "оптимизировать обработку перестроения при необходимости",
+        "pt": "otimizar a manipulação de reconstrução, se necessário",
+        "nl": "optimaliseer indien nodig de afhandeling van herbouw",
+        "fr": "optimiser la gestion de la reconstruction si nécessaire",
+        "it": "ottimizzare la gestione della ricostruzione, se necessario",
+        "es": "optimizar el manejo de reconstrucción si es necesario",
+        "pl": "w razie potrzeby zoptymalizuj obsługę przebudowy",
+        "zh-cn": "必要时优化重建处理"
+      },
+      "2.1.4": {
+        "en": "Support for nodejs 12 added, nodejs 4 is no longer supported!",
+        "de": "Unterstützung für NodeJS 12 hinzugefügt, NodeJS 4 wird nicht mehr unterstützt!",
+        "ru": "Добавлена ​​поддержка nodejs 12, nodejs 4 больше не поддерживается!",
+        "pt": "Suporte para nodejs 12 adicionado, nodejs 4 não é mais suportado!",
+        "nl": "Ondersteuning voor nodejs 12 toegevoegd, nodejs 4 wordt niet langer ondersteund!",
+        "fr": "Prise en charge de nodejs 12 ajoutée, nodejs 4 n'est plus prise en charge!",
+        "it": "Supporto per nodejs 12 aggiunto, nodejs 4 non è più supportato!",
+        "es": "Se agregó soporte para nodejs 12, ¡nodejs 4 ya no es compatible!",
+        "pl": "Dodano wsparcie dla nodejs 12, nodejs 4 nie jest już obsługiwany!",
+        "zh-cn": "添加了对nodejs 12的支持，不再支持nodejs 4！"
+      },
+      "2.0.0": {
+        "en": "Support for nodejs 12 added, nodejs 4 is no longer supported!",
+        "de": "Unterstützung für NodeJS 12 hinzugefügt, NodeJS 4 wird nicht mehr unterstützt!",
+        "ru": "Добавлена ​​поддержка nodejs 12, nodejs 4 больше не поддерживается!",
+        "pt": "Suporte para nodejs 12 adicionado, nodejs 4 não é mais suportado!",
+        "nl": "Ondersteuning voor nodejs 12 toegevoegd, nodejs 4 wordt niet langer ondersteund!",
+        "fr": "Prise en charge de nodejs 12 ajoutée, nodejs 4 n'est plus prise en charge!",
+        "it": "Supporto per nodejs 12 aggiunto, nodejs 4 non è più supportato!",
+        "es": "Se agregó soporte para nodejs 12, ¡nodejs 4 ya no es compatible!",
+        "pl": "Dodano wsparcie dla nodejs 12, nodejs 4 nie jest już obsługiwany!",
+        "zh-cn": "添加了对nodejs 12的支持，不再支持nodejs 4！"
+      },
+      "1.3.0": {
+        "en": "New firmware R48",
+        "de": "New firmware R48",
+        "ru": "New firmware R48"
+      },
+      "1.2.0": {
+        "en": "Upgrade Serialport Library",
+        "de": "Serialport Bibliothek aktualisiert",
+        "ru": "Upgrade Serialport Library"
+      },
+      "1.1.6": {
+        "en": "Fix parsing for Wind-Direction",
+        "de": "Verarbeitung der Windrichtung behoben",
+        "ru": "Fix parsing for Wind-Direction"
+      },
+      "1.1.5": {
+        "en": "Upgrade Serial Library",
+        "de": "Serial Library aktualisiert",
+        "ru": "Upgrade Serial Library"
+      },
+      "1.1.4": {
+        "en": "Fix the rain calculation",
+        "de": "Korrigiere die Berechnugn von Regenniederschlag",
+        "ru": "Исправлено вычисление порывов уровня осадков"
+      },
+      "1.1.3": {
+        "en": "Allow flash on node.js < 5",
+        "de": "Erlaube Firmware-Schreiben auch für node.js < 5",
+        "ru": "Можно обновлять память на node.js < 5"
+      },
+      "1.1.2": {
+        "en": "Fix the wind gist calculation",
+        "de": "Korrigiere die Berechnugn von Böen",
+        "ru": "Исправлено вычисление порывов ветра"
+      },
+      "1.1.0": {
+        "en": "Add stop for blinds",
+        "de": "STOP für Rolladen hinzugefügt",
+        "ru": "Добавлен STOP для жалюзей"
+      },
+      "1.0.8": {
+        "en": "fix KWATT calculation for Oregon CM180",
+        "de": "Korrigiere KWATT Berechnung für Oregon CM180",
+        "ru": "Исправлено вычисление KWATT для Oregon CM180"
+      },
+      "1.0.6": {
+        "en": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands",
+        "de": "Bibliothek serialport aktualisiert um Kompatibel zu node 6.x zu sein, Unterstützung für MiLightv1 und raw Kommandos",
+        "ru": "update serialport library for node 6.x compatibility, Support MiLightv1 and raw commands"
+      }
     },
-    "native": {
-        "comName": "",
-        "board": "mega",
-        "connTimeout": 600000,
-        "baudRate": 57600,
-        "inclusionTimeout": 300000
+    "title": "RFLink",
+    "desc": {
+      "en": "Support of RFLink stick, that enables 433/868Mhz communication",
+      "de": "ioBroker RFLink",
+      "ru": "ioBroker RFLink 433/868"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "If connected to RFLink",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        },
-        {
-            "_id": "inclusionOn",
-            "type": "state",
-            "common": {
-                "role": "state",
-                "name": "Inclusion mode activated",
-                "desc": "If inclusion mode on or off",
-                "type": "boolean",
-                "read": true,
-                "write": true
-            },
-            "native": {}
-        },
-        {
-            "_id": "rawData",
-            "type": "state",
-            "common": {
-                "role": "state",
-                "name": "raw rx data",
-                "desc": "Last received data",
-                "type": "string",
-                "read": true,
-                "write": true
-            },
-            "native": {}
-        },
-        {
-            "_id": "firmwareVersion",
-            "type": "state",
-            "common": {
-                "role": "state",
-                "name": "Firmware version",
-                "desc": "Actual firmware version",
-                "type": "string",
-                "read": true,
-                "write": false
-            },
-            "native": {}
-        },
-        {
-            "_id": "availableVersion",
-            "type": "state",
-            "common": {
-                "role": "state",
-                "name": "Available firmware version",
-                "desc": "Latest firmware version",
-                "type": "string",
-                "read": true,
-                "write": false
-            },
-            "native": {}
-        }
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "rflink.png",
+    "license": "MIT",
+    "enabled": true,
+    "messagebox": true,
+    "compact": true,
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.rflink/master/admin//rflink.png",
+    "keywords": [
+      "RFLink",
+      "arduino mega"
+    ],
+    "readme": "https://github.com/ioBroker/ioBroker.rflink/blob/master/README.md",
+    "loglevel": "info",
+    "stopBeforeUpdate": true,
+    "type": "iot-systems",
+    "authors": [
+      {
+        "name": "bluefox",
+        "email": "dogafox@gmail.com"
+      }
+    ],
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
     ]
+  },
+  "native": {
+    "comName": "",
+    "board": "mega",
+    "connTimeout": 600000,
+    "baudRate": 57600,
+    "inclusionTimeout": 300000
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "If connected to RFLink",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "inclusionOn",
+      "type": "state",
+      "common": {
+        "role": "state",
+        "name": "Inclusion mode activated",
+        "desc": "If inclusion mode on or off",
+        "type": "boolean",
+        "read": true,
+        "write": true
+      },
+      "native": {}
+    },
+    {
+      "_id": "rawData",
+      "type": "state",
+      "common": {
+        "role": "state",
+        "name": "raw rx data",
+        "desc": "Last received data",
+        "type": "string",
+        "read": true,
+        "write": true
+      },
+      "native": {}
+    },
+    {
+      "_id": "firmwareVersion",
+      "type": "state",
+      "common": {
+        "role": "state",
+        "name": "Firmware version",
+        "desc": "Actual firmware version",
+        "type": "string",
+        "read": true,
+        "write": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "availableVersion",
+      "type": "state",
+      "common": {
+        "role": "state",
+        "name": "Available firmware version",
+        "desc": "Latest firmware version",
+        "type": "string",
+        "read": true,
+        "write": false
+      },
+      "native": {}
+    }
+  ]
 }
