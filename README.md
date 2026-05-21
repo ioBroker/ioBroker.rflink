@@ -51,6 +51,10 @@ E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the 
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
 ### 2.1.12 (2024-06-12)
 * (foxriver76) fix serialport
 
