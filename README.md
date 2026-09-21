@@ -127,3 +127,5 @@ E.g: ```10;AB400D;00004d;1;OFF;```. Please read documentation to understand the 
 
 ### 0.1.3 (2016-10-17)
 * (bluefox) initial commit
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
