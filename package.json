@@ -25,7 +25,7 @@
     "url": "https://github.com/ioBroker/ioBroker.rflink"
   },
   "optionalDependencies": {
-    "avrgirl-arduino": "^4.2.3"
+    "avrgirl-arduino": "^5.0.1"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.1.6",
